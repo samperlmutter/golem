@@ -1,0 +1,8 @@
+[package]
+name = "golem"
+version = "0.1.0"
+authors = ["Sam Perlmutter <sam.perlmutter227@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+rocket = "0.4.2"
