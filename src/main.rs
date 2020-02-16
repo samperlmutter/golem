@@ -1,6 +1,14 @@
 #![feature(proc_macro_hygiene, decl_macro)]
 
-#[macro_use] extern crate rocket;
+#[macro_use]
+extern crate rocket;
+#[macro_use]
+extern crate rocket_contrib;
+
+use rocket_contrib::databases::diesel;
+
+#[database("strikes")]
+struct StrikesDbConn(diesel::MysqlConnection);
 
 #[get("/")]
 fn index() -> &'static str {
@@ -8,5 +16,8 @@ fn index() -> &'static str {
 }
 
 fn main() {
-    rocket::ignite().mount("/", routes![index]).launch();
+    rocket::ignite()
+        .attach(StrikesDbConn::fairing())
+        .mount("/", routes![index])
+        .launch();
 }
