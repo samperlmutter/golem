@@ -1,13 +1,21 @@
 [package]
-name = "golem"
-version = "0.1.0"
 authors = ["Sam Perlmutter <sam.perlmutter227@gmail.com>"]
 edition = "2018"
-
+name = "golem"
+version = "0.1.0"
 [dependencies]
-rocket = "0.4.2"
+diesel = "1.4"
+dotenv = "0.15"
+rocket = "0.4"
+serde = { version = "1", features = ["derive"] }
+serde_derive = "1"
+serde_json = "1"
+
+[dependencies.chrono]
+features = ["serde"]
+version = "0.4"
 
 [dependencies.rocket_contrib]
-version = "0.4.2"
 default-features = false
 features = ["diesel_mysql_pool", "json"]
+version = "0.4"
