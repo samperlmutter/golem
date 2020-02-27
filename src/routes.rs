@@ -1,18 +1,15 @@
-use diesel::prelude::*;
 use rocket_contrib::json::Json;
 use rocket::request::LenientForm;
-use crate::schema::brothers::dsl::*;
-use crate::brother::Brother;
 use super::StrikesDbConn;
-use crate::slack::SlackSlashCommand;
+use crate::slack::{ SlackSlashCommand, SlackResponse };
+use crate::strike::service;
 
-#[get("/")]
-pub fn index(conn: StrikesDbConn) -> Result<Json<Vec<Brother>>, String> {
-    brothers
-        .load::<Brother>(&conn.0)
-        .map_err(|err: diesel::result::Error| -> String {
-            println!("Error querying page views: {:?}", err);
-            "Error querying page views from the database".into()
-        })
-        .map(|val: Vec<Brother>|Json(val))
+#[post("/", format = "application/x-www-form-urlencoded", data = "<request>")]
+pub fn index<'a>(conn: StrikesDbConn, request: LenientForm<SlackSlashCommand>) -> Json<SlackResponse<'a>> {
+    let slack_msg = request.into_inner();
+
+    match slack_msg.command.as_str() {
+        "/strikes" => service::strike_handler(&conn, slack_msg.text),
+        _ => Json(SlackResponse::Text("Something's wrong with the slack bot, contact the Slack Master immediately"))
+    }
 }
