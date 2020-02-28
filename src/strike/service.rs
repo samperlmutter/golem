@@ -1,6 +1,7 @@
 use crate::StrikesDbConn;
 use crate::slack::SlackResponse;
 use rocket_contrib::json::Json;
+use crate::slack;
 
 pub fn strike_handler<'a>(conn: &StrikesDbConn, params: String) -> Json<SlackResponse<'a>> {
     let param_list: Vec<&str> = params.split_whitespace().collect();
@@ -11,7 +12,7 @@ pub fn strike_handler<'a>(conn: &StrikesDbConn, params: String) -> Json<SlackRes
             match param_list.len() {
                 1 => rank_strikes(&conn),
                 2 => list_brother_strikes(&conn, param_list),
-                _ => Json(SlackResponse::Text(""))
+                _ => slack::response("Invalid number of arguments")
             }
         },
         "remove" => remove_strike(&conn, param_list),
