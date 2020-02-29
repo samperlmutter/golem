@@ -1,7 +1,17 @@
-pub mod service;
+pub mod strike;
 
-use crate::brother::Brother;
-use crate::schema::strikes;
+use serde::{Deserialize, Serialize};
+use crate::schema::{ brothers, strikes };
+
+#[derive(Identifiable, Queryable, PartialEq, Debug, Serialize, Deserialize, rocket::request::FromForm)]
+#[primary_key(slack_id)]
+pub struct Brother {
+    slack_id: String,
+    can_act: bool,
+    can_reset: bool,
+    name: String,
+    points: i32,
+}
 
 #[derive(PartialEq, Debug)]
 pub enum Excusability {

@@ -1,9 +1,9 @@
-use crate::StrikesDbConn;
-use crate::slack::SlackResponse;
 use rocket_contrib::json::Json;
+
+use crate::StrikesDbConn;
 use crate::slack;
 
-pub fn strike_handler<'a>(conn: &StrikesDbConn, params: String) -> Json<SlackResponse<'a>> {
+pub fn strike_handler<'a>(conn: &StrikesDbConn, params: String) -> Json<slack::SlackResponse<'a>> {
     let param_list: Vec<&str> = params.split_whitespace().collect();
 
     match param_list[0] {
@@ -21,26 +21,26 @@ pub fn strike_handler<'a>(conn: &StrikesDbConn, params: String) -> Json<SlackRes
     }
 }
 
-fn add_strike<'a>(conn: &StrikesDbConn, params: Vec<&str>) -> Json<SlackResponse<'a>> {
+fn add_strike<'a>(conn: &StrikesDbConn, params: Vec<&str>) -> Json<slack::SlackResponse<'a>> {
     todo!();
 }
 
-fn rank_strikes<'a>(conn: &StrikesDbConn) -> Json<SlackResponse<'a>> {
+fn rank_strikes<'a>(conn: &StrikesDbConn) -> Json<slack::SlackResponse<'a>> {
     todo!();
 }
 
-fn list_brother_strikes<'a>(conn: &StrikesDbConn, params: Vec<&str>) -> Json<SlackResponse<'a>> {
+fn list_brother_strikes<'a>(conn: &StrikesDbConn, params: Vec<&str>) -> Json<slack::SlackResponse<'a>> {
     todo!();
 }
 
-fn remove_strike<'a>(conn: &StrikesDbConn, params: Vec<&str>) -> Json<SlackResponse<'a>> {
+fn remove_strike<'a>(conn: &StrikesDbConn, params: Vec<&str>) -> Json<slack::SlackResponse<'a>> {
     todo!();
 }
 
-fn reset_strikes<'a>(conn: &StrikesDbConn) -> Json<SlackResponse<'a>> {
+fn reset_strikes<'a>(conn: &StrikesDbConn) -> Json<slack::SlackResponse<'a>> {
     todo!();
 }
 
-fn help<'a>() -> Json<SlackResponse<'a>> {
+fn help<'a>() -> Json<slack::SlackResponse<'a>> {
     todo!();
 }

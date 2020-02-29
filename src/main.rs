@@ -3,8 +3,7 @@
 mod schema;
 mod routes;
 mod slack;
-mod strike;
-mod brother;
+mod db;
 
 #[macro_use]
 extern crate rocket;
@@ -24,7 +23,7 @@ fn main() {
     rocket::ignite()
         .attach(StrikesDbConn::fairing())
         .mount("/", routes![
-            routes::index
+            routes::index,
             ])
         .launch();
 }
