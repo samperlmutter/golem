@@ -1,5 +1,4 @@
 use serde::Serialize;
-use rocket_contrib::json::Json;
 
 #[derive(rocket::request::FromForm, Serialize)]
 pub struct SlackSlashCommand {
@@ -12,8 +11,4 @@ pub struct SlackSlashCommand {
 pub enum SlackResponse<'a> {
     #[serde(rename = "text")]
     Text(&'a str),
-}
-
-pub fn response(string: &str) -> Json<SlackResponse> {
-    Json(SlackResponse::Text(string))
 }

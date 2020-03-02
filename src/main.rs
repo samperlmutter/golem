@@ -13,6 +13,11 @@ extern crate rocket_contrib;
 extern crate diesel;
 
 use dotenv::dotenv;
+use rocket::fairing::AdHoc;
+use rocket::response::Responder;
+use rocket_contrib::json::Json;
+
+use crate::slack::SlackResponse;
 
 #[database("strikes")]
 pub struct StrikesDbConn(diesel::MysqlConnection);
@@ -22,6 +27,11 @@ fn main() {
 
     rocket::ignite()
         .attach(StrikesDbConn::fairing())
+        .attach(AdHoc::on_response("JSONify response", |req, response: &mut rocket::Response| {
+            let body_str = response.body_string().unwrap_or(String::new());
+            let json = Json(SlackResponse::Text(body_str.as_str()));
+            response.merge(json.respond_to(req).unwrap());
+        }))
         .mount("/", routes![
             routes::index,
             ])
