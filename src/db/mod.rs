@@ -6,11 +6,11 @@ use crate::schema::{ brothers, strikes };
 #[derive(Identifiable, Queryable, PartialEq, Debug, Serialize, Deserialize, rocket::request::FromForm)]
 #[primary_key(slack_id)]
 pub struct Brother {
-    slack_id: String,
-    can_act: bool,
-    can_reset: bool,
-    name: String,
-    points: i32,
+    pub slack_id: String,
+    pub can_act: bool,
+    pub can_reset: bool,
+    pub name: String,
+    pub points: i32,
 }
 
 #[derive(PartialEq, Debug)]
