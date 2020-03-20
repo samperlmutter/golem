@@ -27,7 +27,7 @@ fn main() {
 
     rocket::ignite()
         .attach(StrikesDbConn::fairing())
-        .attach(AdHoc::on_response("JSONify response", |req, response: &mut rocket::Response| {
+        .attach(AdHoc::on_response("Slack response", |req, response: &mut rocket::Response| {
             let body_str = response.body_string().unwrap_or(String::new());
             let json = Json(SlackResponse::Text(body_str.as_str()));
             response.merge(json.respond_to(req).unwrap());
