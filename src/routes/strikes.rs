@@ -1,5 +1,6 @@
 use super::StrikesDbConn;
 use crate::slack::{ SlackSlashCommand, SlackError };
+use crate::db::strike;
 
 pub fn auth_strikes(conn: StrikesDbConn, slack_msg: SlackSlashCommand) -> Result<String, SlackError> {
     let cmd = slack_msg.text.split_whitespace().nth(0).unwrap();
@@ -57,7 +58,8 @@ fn remove_strike(conn: &StrikesDbConn, params: &[&str]) -> Result<String, SlackE
 }
 
 fn reset_strikes(conn: &StrikesDbConn) -> Result<String, SlackError> {
-    todo!();
+    strike::delete_all_strikes()?;
+    Ok("Strikes have been reset".to_string())
 }
 
 fn help() -> String {
