@@ -1,10 +1,10 @@
 use std::io::Read;
 use std::collections::HashMap;
+use std::fmt;
 
 use serde::Serialize;
-use rocket::request::Outcome as ReqOutcome;
-use rocket::request::{ Request, FromRequest };
-use rocket::data::{ self };
+use rocket::request::Request;
+use rocket::data;
 use rocket::http::Status;
 use rocket::Outcome;
 use diesel::prelude::*;
@@ -27,26 +27,42 @@ pub enum SlackResponse<'a> {
     Text(&'a str),
 }
 
-impl<'a> data::FromDataSimple for SlackSlashCommand {
-    type Error = String;
+pub enum SlackError {
+    InternalServerError(String),
+    Unauthorized,
+    InvalidArgs
+}
 
-    fn from_data(req: &Request, data: data::Data) -> data::Outcome<SlackSlashCommand, String> {
+impl fmt::Display for SlackError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            SlackError::InternalServerError(msg) => write!(f, "Internal server error, contact the Slack Master: {}", msg),
+            SlackError::Unauthorized => write!(f, "Sorry, you're not authorized to use this command"),
+            SlackError::InvalidArgs => write!(f, "Invalid number of arguments"),
+        }
+    }
+}
+
+impl data::FromDataSimple for SlackSlashCommand {
+    type Error = SlackError;
+
+    fn from_data(req: &Request, data: data::Data) -> data::Outcome<SlackSlashCommand, SlackError> {
         let mut string = String::new();
         if let Err(e) = data.open().read_to_string(&mut string) {
-            return Outcome::Failure((Status::InternalServerError, format!("{:?}", e)));
+            return Outcome::Failure((Status::InternalServerError, SlackError::InternalServerError(format!("{:?}", e))));
         }
 
         let body;
 
         match percent_decode(string.as_bytes()).decode_utf8() {
             Ok(req) => body = req,
-            Err(e) => return Outcome::Failure((Status::InternalServerError, format!("{:?}", e)))
+            Err(e) => return Outcome::Failure((Status::InternalServerError, SlackError::InternalServerError(format!("{:?}", e))))
         }
 
         let mut fields: HashMap<&str, String> = HashMap::new();
         for f in body.split("&") {
             let (key, val) = match f.find('=') {
-                Some(i) => (&f[..i], f[(i + 1)..].to_string().clone()),
+                Some(i) => (&f[..i], f[(i + 1)..].to_string()),
                 None => continue
             };
             fields.insert(key, val);
@@ -65,13 +81,5 @@ impl<'a> data::FromDataSimple for SlackSlashCommand {
             text,
             brother
         })
-    }
-}
-
-impl<'a, 'r> FromRequest<'a, 'r> for &'a SlackSlashCommand {
-    type Error = ();
-
-    fn from_request(request: &'a Request<'r>) -> ReqOutcome<&'a SlackSlashCommand, Self::Error> {
-        todo!();
     }
 }

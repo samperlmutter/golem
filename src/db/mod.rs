@@ -1,5 +1,3 @@
-pub mod strike;
-
 use serde::{Deserialize, Serialize};
 use crate::schema::{ brothers, strikes };
 
