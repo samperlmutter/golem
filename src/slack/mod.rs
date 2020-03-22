@@ -2,7 +2,7 @@ use std::io::Read;
 use std::collections::HashMap;
 use std::fmt;
 
-use serde::Serialize;
+use serde::{ Serialize, Deserialize };
 use rocket::request::Request;
 use rocket::data;
 use rocket::http::Status;
@@ -13,7 +13,7 @@ use percent_encoding::percent_decode;
 use crate::db::Brother;
 use crate::schema::brothers::dsl::*;
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Deserialize)]
 pub struct SlackSlashCommand {
     pub user_id: String,
     pub command: String,
@@ -27,10 +27,12 @@ pub enum SlackResponse<'a> {
     Text(&'a str),
 }
 
+#[derive(Debug)]
 pub enum SlackError {
     InternalServerError(String),
     Unauthorized,
-    InvalidArgs
+    InvalidArgs,
+    DatabaseError,
 }
 
 impl fmt::Display for SlackError {
@@ -39,7 +41,14 @@ impl fmt::Display for SlackError {
             SlackError::InternalServerError(msg) => write!(f, "Internal server error, contact the Slack Master: {}", msg),
             SlackError::Unauthorized => write!(f, "Sorry, you're not authorized to use this command"),
             SlackError::InvalidArgs => write!(f, "Invalid number of arguments"),
+            SlackError::DatabaseError => write!(f, "Error querying database"),
         }
+    }
+}
+
+impl<E: std::error::Error> From<E> for SlackError {
+    fn from(e: E) -> Self {
+        SlackError::InternalServerError(format!("{:?}", e))
     }
 }
 
@@ -82,4 +91,8 @@ impl data::FromDataSimple for SlackSlashCommand {
             brother
         })
     }
+}
+
+pub fn parse_slack_id(id: &str) -> Option<String> {
+    todo!();
 }
