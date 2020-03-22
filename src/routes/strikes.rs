@@ -2,40 +2,39 @@ use super::StrikesDbConn;
 use crate::slack::{ SlackSlashCommand, SlackError };
 use crate::db::strike;
 
-pub fn auth_strikes(conn: StrikesDbConn, slack_msg: SlackSlashCommand) -> Result<String, SlackError> {
-    let cmd = slack_msg.text.split_whitespace().nth(0).unwrap();
+pub fn auth_strikes(conn: StrikesDbConn, slack_msg: &SlackSlashCommand) -> Result<String, SlackError> {
+    let params: Vec<&str> = slack_msg.text.split_whitespace().collect();
 
-    match cmd {
+    match params[0] {
         "add" | "remove" => {
             if slack_msg.brother.can_act {
-                strikes_handler(conn, slack_msg)
+                strikes_handler(conn, &params)
             } else {
                 Err(SlackError::Unauthorized)
             }
         }
         "reset" => {
             if slack_msg.brother.can_reset {
-                strikes_handler(conn, slack_msg)
+                strikes_handler(conn, &params)
             } else {
                 Err(SlackError::Unauthorized)
             }
         }
-        _ => strikes_handler(conn, slack_msg)
+        _ => strikes_handler(conn, &params)
     }
 }
 
-pub fn strikes_handler(conn: StrikesDbConn, slack_msg: SlackSlashCommand) -> Result<String, SlackError> {
-    let param_list: Vec<&str> = slack_msg.text.split_whitespace().collect();
-    match param_list[0] {
-        "add" => add_strike(&conn, &param_list[1..]),
+pub fn strikes_handler(conn: StrikesDbConn, params: &[&str]) -> Result<String, SlackError> {
+    match params[0] {
+        "add" => add_strike(&conn, &params[1..]),
         "list" => {
-            match param_list.len() {
+            match params.len() {
                 1 => rank_strikes(&conn),
-                2 => list_brother_strikes(&conn, &param_list[1..]),
+                2 => list_brother_strikes(&conn, &params[1..]),
                 _ => Err(SlackError::InvalidArgs)
             }
         },
-        "remove" => remove_strike(&conn, &param_list[1..]),
+        "remove" => remove_strike(&conn, &params[1..]),
         "reset" => reset_strikes(&conn),
         _ => Ok(help())
     }
