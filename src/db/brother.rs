@@ -15,7 +15,7 @@ pub fn get_brother(conn: &StrikesDbConn, bro_id: &String) -> Result<Brother, Sla
 
 // Get list of all brothers from the database
 pub fn get_all_brothers(conn: &StrikesDbConn, ) -> Result<Vec<Brother>, SlackError> {
-    match brothers.load::<Brother>(&conn.0) {
+    match brothers.order(name.asc()).load::<Brother>(&conn.0) {
         Ok(brothers_list) => Ok(brothers_list),
         Err(_) => Err(SlackError::DatabaseError)
     }
