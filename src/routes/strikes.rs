@@ -49,23 +49,18 @@ fn add_strike(conn: &StrikesDbConn, params: &[&str]) -> Result<String, SlackErro
     todo!();
 }
 
-fn rank_strikes<'a>(conn: &StrikesDbConn) -> Result<String, SlackError> {
+fn rank_strikes(conn: &StrikesDbConn) -> Result<String, SlackError> {
     let mut res = String::new();
 
     for brother in brothers.order(name.asc()).load::<Brother>(&conn.0)? {
-        let mut brother_name = brother.name.as_str().chars();
-        let brother_name = match brother_name.next() {
-            None => String::new(),
-            Some(c) => c.to_uppercase().collect::<String>() + brother_name.as_str()
-        };
         let brother = brothers.filter(slack_id.eq(brother.slack_id)).first::<Brother>(&conn.0)?;
         let num_strikes = Strike::belonging_to(&brother).load::<Strike>(&conn.0)?.len();
 
         res += &format!("• {} has {} strike{}\n",
-                        brother_name,
+                        brother.name,
                         num_strikes,
                         if num_strikes == 1 { "" } else { "s" }
-                    );
+        );
     }
 
     Ok(res)
@@ -83,13 +78,11 @@ fn list_brother_strikes(conn: &StrikesDbConn, params: &[&str]) -> Result<String,
     let mut res = String::new();
 
     for (i, strike) in brother_strikes.iter().enumerate() {
-        let mut brother_name = brother.name.as_str().chars();
-        let brother_name = match brother_name.next() {
-            Some(c) => c.to_uppercase().collect::<String>() + brother_name.as_str(),
-            None => String::new()
-        };
-
-        res += &format!("{}. {} has an {}\n", i + 1, brother_name, strike);
+        res += &format!("{}. {} has an {}\n",
+                        i + 1,
+                        brother.name,
+                        strike
+        );
     }
 
     Ok(res)
