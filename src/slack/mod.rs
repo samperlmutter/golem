@@ -95,6 +95,16 @@ impl data::FromDataSimple for SlackSlashCommand {
     }
 }
 
-pub fn parse_slack_id(id: &str) -> Option<String> {
-    todo!();
+pub fn parse_slack_id(id: &str) -> Result<&str, SlackError> {
+    let (_, id) = id.split_at(2);
+    let mat: regex::Match = match regex::Regex::new(r"([A-Z0-9])\w+")?.find(id) {
+        Some(mat) => mat,
+        None => return Err(SlackError::InternalServerError("Error parsing slack id".to_string()))
+    };
+
+    id.get(mat.start()..mat.end())
+      .map_or_else(
+          || Err(SlackError::InternalServerError("Error parsing slack id".to_string())),
+          |s| Ok(s)
+        )
 }
