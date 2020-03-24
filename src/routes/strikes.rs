@@ -1,7 +1,9 @@
 use diesel::prelude::*;
 
 use super::StrikesDbConn;
-use crate::db::{ Strike, Brother };
+use crate::db::{ Strike, Brother, InsertableStrike };
+use crate::db::excusability::Excusability;
+use crate::db::offense::Offense;
 use crate::slack::{ SlackSlashCommand, SlackError };
 use crate::slack;
 use crate::schema::brothers::dsl::*;
@@ -46,7 +48,32 @@ pub fn strikes_handler(conn: StrikesDbConn, params: &[&str]) -> Result<String, S
 }
 
 fn add_strike(conn: &StrikesDbConn, params: &[&str]) -> Result<String, SlackError> {
-    todo!();
+    if params.len() < 4 {
+        return Err(SlackError::InvalidArgs);
+    }
+
+    let excuse = params[1].parse::<Excusability>()?;
+    let action = params[2].parse::<Offense>()?;
+    let motive = params[3..].join(" ");
+    let bro_id = slack::parse_slack_id(params[0])?.to_string();
+
+    let new_strike = InsertableStrike {
+        excusability: excuse,
+        offense: action,
+        reason: motive,
+        brother_id: bro_id
+    };
+
+    diesel::insert_into(strikes).values(&new_strike).execute(&conn.0)?;
+
+    let brother = brothers.filter(slack_id.eq(new_strike.brother_id)).first::<Brother>(&conn.0)?;
+    let num_strikes = Strike::belonging_to(&brother).load::<Strike>(&conn.0)?.len();
+
+    Ok(format!("{} now has {} strike{}",
+        brother.name,
+        num_strikes,
+        if num_strikes == 1 { "" } else { "s" }
+    ))
 }
 
 fn rank_strikes(conn: &StrikesDbConn) -> Result<String, SlackError> {
