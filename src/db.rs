@@ -40,14 +40,14 @@ impl Display for Excusability {
 #[derive(PartialEq, Debug, Copy, Clone, Eq)]
 pub enum Offense {
     Tardy,
-    Absent
+    Absence
 }
 
 impl Into<Offense> for i32 {
     fn into(self) -> Offense {
         match self {
             0 => Offense::Tardy,
-            _ => Offense::Absent
+            _ => Offense::Absence
         }
     }
 }
@@ -56,7 +56,7 @@ impl Display for Offense {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         match self {
             Offense::Tardy => write!(f, "tardy"),
-            Offense::Absent => write!(f, "absent")
+            Offense::Absence => write!(f, "absence")
         }
     }
 }

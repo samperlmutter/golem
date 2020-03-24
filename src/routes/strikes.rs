@@ -72,7 +72,22 @@ fn rank_strikes<'a>(conn: &StrikesDbConn) -> Result<String, SlackError> {
 }
 
 fn list_brother_strikes(conn: &StrikesDbConn, params: &[&str]) -> Result<String, SlackError> {
-    todo!();
+    let bro_id = slack::parse_slack_id(&params[0].to_string())?;
+    let brother = brothers.filter(slack_id.eq(bro_id)).first::<Brother>(&conn.0)?;
+    let brother_strikes = Strike::belonging_to(&brother).load::<Strike>(&conn.0)?;
+    let mut res = String::new();
+
+    for (i, strike) in brother_strikes.iter().enumerate() {
+        let mut brother_name = brother.name.as_str().chars();
+        let brother_name = match brother_name.next() {
+            Some(c) => c.to_uppercase().collect::<String>() + brother_name.as_str(),
+            None => String::new()
+        };
+
+        res += &format!("{}. {} has an {}\n", i + 1, brother_name, strike);
+    }
+
+    Ok(res)
 }
 
 fn remove_strike(conn: &StrikesDbConn, params: &[&str]) -> Result<String, SlackError> {
