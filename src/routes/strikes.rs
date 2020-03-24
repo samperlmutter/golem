@@ -80,7 +80,7 @@ fn remove_strike(conn: &StrikesDbConn, params: &[&str]) -> Result<String, SlackE
 }
 
 fn reset_strikes(conn: &StrikesDbConn) -> Result<String, SlackError> {
-    strike::delete_all_strikes()?;
+    diesel::delete(strikes).execute(&conn.0)?;
     Ok("Strikes have been reset".to_string())
 }
 
