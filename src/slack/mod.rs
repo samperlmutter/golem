@@ -33,6 +33,7 @@ pub enum SlackError {
     Unauthorized,
     InvalidArgs,
     DatabaseError,
+    UserError(String),
 }
 
 impl fmt::Display for SlackError {
@@ -42,6 +43,7 @@ impl fmt::Display for SlackError {
             SlackError::Unauthorized => write!(f, "Sorry, you're not authorized to use this command"),
             SlackError::InvalidArgs => write!(f, "Invalid number of arguments"),
             SlackError::DatabaseError => write!(f, "Error querying database"),
+            SlackError::UserError(msg) => write!(f, "Error: {}", msg),
         }
     }
 }

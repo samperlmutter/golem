@@ -72,9 +72,14 @@ fn rank_strikes<'a>(conn: &StrikesDbConn) -> Result<String, SlackError> {
 }
 
 fn list_brother_strikes(conn: &StrikesDbConn, params: &[&str]) -> Result<String, SlackError> {
-    let bro_id = slack::parse_slack_id(&params[0].to_string())?;
+    let bro_id = slack::parse_slack_id(&params[0])?;
     let brother = brothers.filter(slack_id.eq(bro_id)).first::<Brother>(&conn.0)?;
     let brother_strikes = Strike::belonging_to(&brother).load::<Strike>(&conn.0)?;
+
+    if brother_strikes.is_empty() {
+        return Ok(format!("{} has 0 strikes", brother.name));
+    }
+
     let mut res = String::new();
 
     for (i, strike) in brother_strikes.iter().enumerate() {
@@ -91,7 +96,31 @@ fn list_brother_strikes(conn: &StrikesDbConn, params: &[&str]) -> Result<String,
 }
 
 fn remove_strike(conn: &StrikesDbConn, params: &[&str]) -> Result<String, SlackError> {
-    todo!();
+    if params.len() != 2 {
+        return Err(SlackError::InvalidArgs);
+    }
+
+    let bro_id = slack::parse_slack_id(&params[0])?;
+    let brother = brothers.filter(slack_id.eq(bro_id)).first::<Brother>(&conn.0)?;
+    let brother_strikes = Strike::belonging_to(&brother).load::<Strike>(&conn.0)?;
+
+    if brother_strikes.is_empty() {
+        return Ok(format!("{} has no strikes to remove", brother.name));
+    }
+
+    let strike_num = params[1].to_string().parse::<i32>()?;
+    if strike_num < 1 || strike_num > brother_strikes.len() as i32 {
+        return Err(SlackError::UserError("Please choose a valid strike id. run `/strikes list <@user>` to see their strikes".to_string()));
+    }
+
+    let strike = brother_strikes.get((strike_num - 1) as usize).unwrap();
+    diesel::delete(strikes.filter(id.eq(strike.id))).execute(&conn.0)?;
+
+    Ok(format!("{} now has {} strike{}",
+                brother.name,
+                brother_strikes.len() - 1,
+                if brother_strikes.len() - 1 == 1 { "" } else { "s" })
+            )
 }
 
 fn reset_strikes(conn: &StrikesDbConn) -> Result<String, SlackError> {

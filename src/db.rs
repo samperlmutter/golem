@@ -64,7 +64,7 @@ impl Display for Offense {
 #[derive(Identifiable, Queryable, Associations, PartialEq, Debug)]
 #[belongs_to(Brother)]
 pub struct Strike {
-    id: i32,
+    pub id: i32,
     #[diesel(deserialize_as = "i32")]
     excusability: Excusability,
     #[diesel(deserialize_as = "i32")]
