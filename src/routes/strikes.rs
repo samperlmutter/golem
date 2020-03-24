@@ -1,7 +1,11 @@
+use diesel::prelude::*;
+
 use super::StrikesDbConn;
+use crate::db::{ Strike, Brother };
 use crate::slack::{ SlackSlashCommand, SlackError };
 use crate::slack;
-use crate::db::{ strike, brother };
+use crate::schema::brothers::dsl::*;
+use crate::schema::strikes::dsl::*;
 
 pub fn auth_strikes(conn: StrikesDbConn, slack_msg: &SlackSlashCommand) -> Result<String, SlackError> {
     let params: Vec<&str> = slack_msg.text.split_whitespace().collect();
@@ -48,13 +52,14 @@ fn add_strike(conn: &StrikesDbConn, params: &[&str]) -> Result<String, SlackErro
 fn rank_strikes<'a>(conn: &StrikesDbConn) -> Result<String, SlackError> {
     let mut res = String::new();
 
-    for brother in brother::get_all_brothers(conn)? {
+    for brother in brothers.order(name.asc()).load::<Brother>(&conn.0)? {
         let mut brother_name = brother.name.as_str().chars();
         let brother_name = match brother_name.next() {
             None => String::new(),
             Some(c) => c.to_uppercase().collect::<String>() + brother_name.as_str()
         };
-        let num_strikes = brother::get_brother_num_strikes(conn, &brother.slack_id)?;
+        let brother = brothers.filter(slack_id.eq(brother.slack_id)).first::<Brother>(&conn.0)?;
+        let num_strikes = Strike::belonging_to(&brother).load::<Strike>(&conn.0)?.len();
 
         res += &format!("• {} has {} strike{}\n",
                         brother_name,

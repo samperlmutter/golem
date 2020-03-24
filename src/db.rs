@@ -1,7 +1,6 @@
-pub mod brother;
-pub mod strike;
-
+use std::fmt::*;
 use serde::Deserialize;
+
 use crate::schema::{ brothers, strikes };
 
 #[derive(Identifiable, Queryable, Debug, Deserialize, PartialEq)]
@@ -29,6 +28,15 @@ impl Into<Excusability> for i32 {
     }
 }
 
+impl Display for Excusability {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        match self {
+            Excusability::Excused => write!(f, "excused"),
+            Excusability::Unexcused => write!(f, "unexcused")
+        }
+    }
+}
+
 #[derive(PartialEq, Debug, Copy, Clone, Eq)]
 pub enum Offense {
     Tardy,
@@ -44,6 +52,15 @@ impl Into<Offense> for i32 {
     }
 }
 
+impl Display for Offense {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        match self {
+            Offense::Tardy => write!(f, "tardy"),
+            Offense::Absent => write!(f, "absent")
+        }
+    }
+}
+
 #[derive(Identifiable, Queryable, Associations, PartialEq, Debug)]
 #[belongs_to(Brother)]
 pub struct Strike {
@@ -54,4 +71,10 @@ pub struct Strike {
     offense: Offense,
     reason: String,
     brother_id: String,
+}
+
+impl Display for Strike {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        write!(f, "*{} {}* for reason: *{}*", self.excusability, self.offense, self.reason)
+    }
 }
