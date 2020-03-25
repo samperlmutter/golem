@@ -84,7 +84,10 @@ impl data::FromDataSimple for SlackSlashCommand {
         let text = fields.get("text").unwrap().clone();
 
         let conn = req.guard::<crate::StrikesDbConn>().succeeded().unwrap();
-        let brother = brothers.filter(slack_id.eq(fields.get("user_id").unwrap())).first::<Brother>(&conn.0).ok().unwrap();
+        let brother = match brothers.filter(slack_id.eq(fields.get("user_id").unwrap())).first::<Brother>(&conn.0) {
+            Ok(brother) => brother,
+            Err(_) => return Outcome::Failure((Status::InternalServerError, SlackError::DatabaseError))
+        };
 
         Outcome::Success(SlackSlashCommand {
             user_id,
