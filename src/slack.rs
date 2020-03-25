@@ -66,7 +66,7 @@ impl data::FromDataSimple for SlackSlashCommand {
         let body;
 
         match percent_decode(string.as_bytes()).decode_utf8() {
-            Ok(req) => body = req,
+            Ok(req) => body = req.replace("+", " "),
             Err(e) => return Outcome::Failure((Status::InternalServerError, SlackError::InternalServerError(format!("{:?}", e))))
         }
 
