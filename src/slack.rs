@@ -36,6 +36,8 @@ pub enum SlackError {
     UserError(String),
 }
 
+pub type SlackResult = Result<String, SlackError>;
+
 impl fmt::Display for SlackError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
@@ -98,7 +100,7 @@ impl data::FromDataSimple for SlackSlashCommand {
     }
 }
 
-pub fn parse_slack_id(id: &str) -> Result<&str, SlackError> {
+pub fn parse_slack_id(id: &str) -> SlackResult {
     let (_, id) = id.split_at(2);
     let mat: regex::Match = match regex::Regex::new(r"([A-Z0-9])\w+")
                                 .map_err(|e|
@@ -109,7 +111,7 @@ pub fn parse_slack_id(id: &str) -> Result<&str, SlackError> {
     };
 
     match id.get(mat.start()..mat.end()) {
-        Some(s) => Ok(s),
+        Some(s) => Ok(s.to_string()),
         None => Err(SlackError::InternalServerError("Error parsing slack id".to_string()))
     }
 }

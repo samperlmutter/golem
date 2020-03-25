@@ -4,12 +4,12 @@ use super::StrikesDbConn;
 use crate::db::{ Strike, Brother, InsertableStrike };
 use crate::db::excusability::Excusability;
 use crate::db::offense::Offense;
-use crate::slack::{ SlackSlashCommand, SlackError };
+use crate::slack::{ SlackSlashCommand, SlackError, SlackResult };
 use crate::slack;
 use crate::schema::brothers::dsl::*;
 use crate::schema::strikes::dsl::*;
 
-pub fn auth_strikes(conn: StrikesDbConn, slack_msg: &SlackSlashCommand) -> Result<String, SlackError> {
+pub fn auth_strikes(conn: StrikesDbConn, slack_msg: &SlackSlashCommand) -> SlackResult {
     let params: Vec<&str> = slack_msg.text.split_whitespace().skip(1).collect();
 
     match params[0] {
@@ -31,7 +31,7 @@ pub fn auth_strikes(conn: StrikesDbConn, slack_msg: &SlackSlashCommand) -> Resul
     }
 }
 
-pub fn strikes_handler(conn: StrikesDbConn, params: &[&str]) -> Result<String, SlackError> {
+pub fn strikes_handler(conn: StrikesDbConn, params: &[&str]) -> SlackResult {
     match params[0] {
         "add" => add_strike(&conn, &params[1..]),
         "list" => {
@@ -47,7 +47,7 @@ pub fn strikes_handler(conn: StrikesDbConn, params: &[&str]) -> Result<String, S
     }
 }
 
-fn add_strike(conn: &StrikesDbConn, params: &[&str]) -> Result<String, SlackError> {
+fn add_strike(conn: &StrikesDbConn, params: &[&str]) -> SlackResult {
     if params.len() < 4 {
         return Err(SlackError::InvalidArgs);
     }
@@ -76,7 +76,7 @@ fn add_strike(conn: &StrikesDbConn, params: &[&str]) -> Result<String, SlackErro
     ))
 }
 
-fn rank_strikes(conn: &StrikesDbConn) -> Result<String, SlackError> {
+fn rank_strikes(conn: &StrikesDbConn) -> SlackResult {
     let mut res = String::new();
 
     for brother in brothers.order(name.asc()).load::<Brother>(&conn.0)? {
@@ -93,7 +93,7 @@ fn rank_strikes(conn: &StrikesDbConn) -> Result<String, SlackError> {
     Ok(res)
 }
 
-fn list_brother_strikes(conn: &StrikesDbConn, params: &[&str]) -> Result<String, SlackError> {
+fn list_brother_strikes(conn: &StrikesDbConn, params: &[&str]) -> SlackResult {
     let bro_id = slack::parse_slack_id(&params[0])?;
     let brother = brothers.filter(slack_id.eq(bro_id)).first::<Brother>(&conn.0)?;
     let brother_strikes = Strike::belonging_to(&brother).load::<Strike>(&conn.0)?;
@@ -115,7 +115,7 @@ fn list_brother_strikes(conn: &StrikesDbConn, params: &[&str]) -> Result<String,
     Ok(res)
 }
 
-fn remove_strike(conn: &StrikesDbConn, params: &[&str]) -> Result<String, SlackError> {
+fn remove_strike(conn: &StrikesDbConn, params: &[&str]) -> SlackResult {
     if params.len() != 2 {
         return Err(SlackError::InvalidArgs);
     }
@@ -143,7 +143,7 @@ fn remove_strike(conn: &StrikesDbConn, params: &[&str]) -> Result<String, SlackE
             )
 }
 
-fn reset_strikes(conn: &StrikesDbConn) -> Result<String, SlackError> {
+fn reset_strikes(conn: &StrikesDbConn) -> SlackResult {
     diesel::delete(strikes).execute(&conn.0)?;
     Ok("Strikes have been reset".to_string())
 }
