@@ -151,16 +151,16 @@ fn reset_strikes(conn: &StrikesDbConn) -> SlackResult {
 fn help() -> String {
     "*Available commands*:
     >*Add a strike*
-    >Type `/strikes add @{name} {excused | unexcused} {tardy | absence} {reason}` to add a strike to the specified user
+    >Type `/golem strikes add @{name} {excused | unexcused} {tardy | absence} {reason}` to add a strike to the specified user
     >*Remove a strike*
-    >Type `/strikes remove @{name} {strikeNumber}` to remove the specified strike from the specified
+    >Type `/golem strikes remove @{name} {strikeNumber}` to remove the specified strike from the specified
     >*List everyone's strikes*
-    >Type `/strikes list [@{name}]` to list how many strikes each user has, sorted numerically
+    >Type `/golem strikes list [@{name}]` to list how many strikes each user has, sorted numerically
     >Optionally mention a user to list information about their strikes
     >*Reset strikes*
-    >Type `/strikes reset` to reset everyone's strikes to 0
+    >Type `/golem strikes reset` to reset everyone's strikes to 0
     >This should only be done at the end of the semester
     >*Help*
-    >Type `/strikes help` to display this message"
+    >Type `/golem strikes help` to display this message"
     .to_string()
 }
