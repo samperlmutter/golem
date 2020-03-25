@@ -10,7 +10,7 @@ use crate::schema::brothers::dsl::*;
 use crate::schema::strikes::dsl::*;
 
 pub fn auth_strikes(conn: StrikesDbConn, slack_msg: &SlackSlashCommand) -> Result<String, SlackError> {
-    let params: Vec<&str> = slack_msg.text.split_whitespace().collect();
+    let params: Vec<&str> = slack_msg.text.split("+").collect();
 
     match params[0] {
         "add" | "remove" => {
