@@ -21,7 +21,7 @@ pub fn auth_strikes(conn: StrikesDbConn, slack_msg: &SlackSlashCommand) -> Slack
             }
         }
         "reset" => {
-            if slack_msg.brother.can_reset {
+            if slack_msg.brother.is_admin {
                 strikes_handler(conn, &params)
             } else {
                 Err(SlackError::Unauthorized)

@@ -13,7 +13,7 @@ use offense::Offense;
 pub struct Brother {
     pub slack_id: String,
     pub can_act: bool,
-    pub can_reset: bool,
+    pub is_admin: bool,
     pub name: String,
     pub points: i32,
 }
