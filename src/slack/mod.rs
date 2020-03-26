@@ -19,6 +19,7 @@ pub struct SlackSlashCommand {
     pub command: String,
     pub text: String,
     pub brother: Brother,
+    pub trigger_id: String,
 }
 
 #[derive(Serialize, Debug)]
@@ -84,6 +85,7 @@ impl data::FromDataSimple for SlackSlashCommand {
         let user_id = fields.get("user_id").unwrap().clone();
         let command = fields.get("command").unwrap().clone();
         let text = fields.get("text").unwrap().clone();
+        let trigger_id = fields.get("trigger_id").unwrap().clone();
 
         let conn = req.guard::<crate::StrikesDbConn>().succeeded().unwrap();
         let brother = match brothers.filter(slack_id.eq(fields.get("user_id").unwrap())).first::<Brother>(&conn.0) {
@@ -95,7 +97,8 @@ impl data::FromDataSimple for SlackSlashCommand {
             user_id,
             command,
             text,
-            brother
+            brother,
+            trigger_id,
         })
     }
 }
