@@ -4,18 +4,17 @@ use std::io::Read;
 use std::collections::HashMap;
 use std::fmt;
 
-use serde::{ Serialize, Deserialize };
+use serde::Serialize;
 use rocket::request::Request;
 use rocket::data;
 use rocket::http::Status;
 use rocket::Outcome;
 use diesel::prelude::*;
-use percent_encoding::percent_decode;
 
 use crate::db::Brother;
 use crate::schema::brothers::dsl::*;
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug)]
 pub struct SlackSlashCommand {
     pub user_id: String,
     pub command: String,
@@ -70,7 +69,7 @@ impl data::FromDataSimple for SlackSlashCommand {
 
         let body;
 
-        match percent_decode(string.as_bytes()).decode_utf8() {
+        match percent_encoding::percent_decode(string.as_bytes()).decode_utf8() {
             Ok(req) => body = req.replace("+", " "),
             Err(e) => return Outcome::Failure((Status::InternalServerError, SlackError::InternalServerError(format!("{:?}", e))))
         }

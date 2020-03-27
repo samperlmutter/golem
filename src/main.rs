@@ -46,6 +46,7 @@ fn main() {
         }))
         .mount("/", routes![
             routes::index,
+            routes::interaction
             ])
         .launch();
 }

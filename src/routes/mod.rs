@@ -5,6 +5,7 @@ use rocket::State;
 
 use super::{ StrikesDbConn, SlackAuthToken };
 use crate::slack::{ SlackSlashCommand, SlackError };
+use crate::slack::interactions::ViewPayload;
 
 #[post("/", format = "application/x-www-form-urlencoded", data = "<slack_req>")]
 pub fn index(conn: StrikesDbConn, slack_req: Result<SlackSlashCommand, SlackError>, auth_token: State<SlackAuthToken>) -> String {
@@ -15,7 +16,7 @@ pub fn index(conn: StrikesDbConn, slack_req: Result<SlackSlashCommand, SlackErro
     }
 }
 
-#[post("/interaction")]
-pub fn interaction() -> String {
+#[post("/interaction", format = "application/json", data = "<view_payload>")]
+pub fn interaction(view_payload: ViewPayload) -> String {
     todo!();
 }
