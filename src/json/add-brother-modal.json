@@ -1,0 +1,123 @@
+{
+    "type": "modal",
+    "callback_id": "add_brother_modal",
+    "title": {
+        "type": "plain_text",
+        "text": "Golem",
+        "emoji": true
+    },
+    "submit": {
+        "type": "plain_text",
+        "text": "Submit",
+        "emoji": true
+    },
+    "close": {
+        "type": "plain_text",
+        "text": "Cancel",
+        "emoji": true
+    },
+    "blocks": [{
+            "type": "input",
+            "element": {
+                "type": "users_select",
+                "placeholder": {
+                    "type": "plain_text",
+                    "text": "Select a brother",
+                    "emoji": true
+                },
+                "action_id": "add_brother_target"
+            },
+            "label": {
+                "type": "plain_text",
+                "text": "Select a brother",
+                "emoji": true
+            }
+        },
+        {
+            "type": "input",
+            "element": {
+                "type": "static_select",
+                "placeholder": {
+                    "type": "plain_text",
+                    "text": "Excusability",
+                    "emoji": true
+                },
+                "action_id": "add_brother_excusability",
+                "options": [{
+                        "text": {
+                            "type": "plain_text",
+                            "text": "Excused",
+                            "emoji": true
+                        },
+                        "value": "excused"
+                    },
+                    {
+                        "text": {
+                            "type": "plain_text",
+                            "text": "Unexcused",
+                            "emoji": true
+                        },
+                        "value": "unexcused"
+                    }
+                ]
+            },
+            "label": {
+                "type": "plain_text",
+                "text": "Select their excusability",
+                "emoji": true
+            }
+        },
+        {
+            "type": "input",
+            "element": {
+                "type": "static_select",
+                "placeholder": {
+                    "type": "plain_text",
+                    "text": "Offense",
+                    "emoji": true
+                },
+                "action_id": "add_brother_offense",
+                "options": [{
+                        "text": {
+                            "type": "plain_text",
+                            "text": "Tardy",
+                            "emoji": true
+                        },
+                        "value": "tardy"
+                    },
+                    {
+                        "text": {
+                            "type": "plain_text",
+                            "text": "Absent",
+                            "emoji": true
+                        },
+                        "value": "absence"
+                    }
+                ]
+            },
+            "label": {
+                "type": "plain_text",
+                "text": "Select their offense",
+                "emoji": true
+            }
+        },
+        {
+            "type": "input",
+            "element": {
+                "type": "plain_text_input",
+                "multiline": true,
+                "action_id": "add_brother_reason",
+                "placeholder": {
+                    "type": "plain_text",
+                    "text": "Why are they getting a strike?",
+                    "emoji": true
+                }
+            },
+            "label": {
+                "type": "plain_text",
+                "text": "Reason",
+                "emoji": true
+            }
+        }
+    ]
+}

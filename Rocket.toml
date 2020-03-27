@@ -1,2 +1,5 @@
 [global.databases]
 strikes = { url = "mysql://strikes:strikes@127.0.0.1/strikes" }
+
+[development]
+slack_auth_token = ""

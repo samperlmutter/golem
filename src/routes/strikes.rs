@@ -1,6 +1,7 @@
 use diesel::prelude::*;
+use rocket::State;
 
-use super::StrikesDbConn;
+use super::{ StrikesDbConn, SlackAuthToken };
 use crate::db::{ Strike, Brother, InsertableStrike };
 use crate::db::excusability::Excusability;
 use crate::db::offense::Offense;
@@ -9,31 +10,31 @@ use crate::slack;
 use crate::schema::brothers::dsl::*;
 use crate::schema::strikes::dsl::*;
 
-pub fn auth_strikes(conn: StrikesDbConn, slack_msg: &SlackSlashCommand) -> SlackResult {
-    let params: Vec<&str> = slack_msg.text.split_whitespace().skip(1).collect();
-
-    match params[0] {
+pub fn auth_strikes(conn: StrikesDbConn, slack_msg: &SlackSlashCommand, auth_token: State<SlackAuthToken>) -> SlackResult {
+    match slack_msg.text.split_whitespace().nth(0).unwrap() {
         "add" | "remove" => {
             if slack_msg.brother.can_act {
-                strikes_handler(conn, &params)
+                strikes_handler(conn, slack_msg, auth_token)
             } else {
                 Err(SlackError::Unauthorized)
             }
         }
         "reset" => {
             if slack_msg.brother.can_reset {
-                strikes_handler(conn, &params)
+                strikes_handler(conn, slack_msg, auth_token)
             } else {
                 Err(SlackError::Unauthorized)
             }
         }
-        _ => strikes_handler(conn, &params)
+        _ => strikes_handler(conn, slack_msg, auth_token)
     }
 }
 
-pub fn strikes_handler(conn: StrikesDbConn, params: &[&str]) -> SlackResult {
+pub fn strikes_handler(conn: StrikesDbConn, slack_msg: &SlackSlashCommand, auth_token: State<SlackAuthToken>) -> SlackResult {
+    let params: Vec<&str> = slack_msg.text.split_whitespace().skip(1).collect();
+
     match params[0] {
-        "add" => add_strike(&conn, &params[1..]),
+        "add" => super::interactions::send_add_strike_modal(slack_msg, auth_token),
         "list" => {
             match params.len() {
                 1 => rank_strikes(&conn),
@@ -47,7 +48,7 @@ pub fn strikes_handler(conn: StrikesDbConn, params: &[&str]) -> SlackResult {
     }
 }
 
-fn add_strike(conn: &StrikesDbConn, params: &[&str]) -> SlackResult {
+fn add_strike<'a>(conn: &StrikesDbConn, params: &[&str]) -> SlackResult {
     if params.len() < 4 {
         return Err(SlackError::InvalidArgs);
     }
