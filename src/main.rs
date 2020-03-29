@@ -30,7 +30,7 @@ fn main() {
         .attach(AdHoc::on_attach("Slack auth token config", |rocket| {
             let token = rocket.config()
                 .get_str("slack_auth_token")
-                .unwrap_or("faje_token")
+                .unwrap_or("fake_token")
                 .to_string();
 
             Ok(rocket.manage(SlackAuthToken(token)))

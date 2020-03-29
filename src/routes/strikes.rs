@@ -46,17 +46,17 @@ pub fn strikes_handler(conn: StrikesDbConn, slack_msg: &SlackSlashCommand, auth_
     }
 }
 
-pub fn add_strike<'a>(conn: &StrikesDbConn, new_strike: InsertableStrike) -> SlackResult {
+pub fn add_strike(conn: &StrikesDbConn, new_strike: InsertableStrike) -> Result<String, SlackError> {
     diesel::insert_into(strikes).values(&new_strike).execute(&conn.0)?;
 
     let brother = brothers.filter(slack_id.eq(new_strike.brother_id)).first::<Brother>(&conn.0)?;
     let num_strikes = Strike::belonging_to(&brother).load::<Strike>(&conn.0)?.len();
 
-    Ok(SlackResponse::Text(format!("{} now has {} strike{}",
+    Ok(format!("{} now has {} strike{}",
         brother.name,
         num_strikes,
         if num_strikes == 1 { "" } else { "s" }
-    )))
+    ))
 }
 
 fn rank_strikes(conn: &StrikesDbConn) -> SlackResult {
