@@ -17,6 +17,9 @@ pub fn index(conn: StrikesDbConn, slack_req: Result<SlackSlashCommand, SlackErro
 }
 
 #[post("/interaction", format = "application/json", data = "<view_payload>")]
-pub fn interaction(view_payload: ViewPayload) -> String {
-    todo!();
+pub fn interaction(conn: StrikesDbConn, view_payload: Result<ViewPayload, SlackError>) -> String {
+    match view_payload {
+        Ok(view_payload) => interactions::receive_add_strike_modal(conn, view_payload).unwrap_or_else(|e| e.to_string()),
+        Err(err) => err.to_string()
+    }
 }

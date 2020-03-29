@@ -1,4 +1,5 @@
 use std::io::Read;
+use std::collections::HashMap;
 
 use rocket::data;
 use rocket::http::Status;
@@ -27,15 +28,10 @@ impl std::str::FromStr for InteractionType {
     }
 }
 
-pub struct ModalValue {
-    pub key: String,
-    pub value: String
-}
-
 pub struct ViewPayload {
     pub interaction_type: InteractionType,
     pub brother: Brother,
-    pub values: Vec<ModalValue>,
+    pub values: HashMap<String, String>,
 }
 
 impl data::FromDataSimple for ViewPayload {
@@ -70,10 +66,7 @@ impl data::FromDataSimple for ViewPayload {
                              .unwrap();
             let value = v[action_id]["value"].as_str().unwrap();
 
-            ModalValue {
-                key: String::from(action_id),
-                value: String::from(value)
-            }
+            (String::from(action_id), String::from(value))
         })
         .collect();
 

@@ -48,23 +48,7 @@ pub fn strikes_handler(conn: StrikesDbConn, slack_msg: &SlackSlashCommand, auth_
     }
 }
 
-fn add_strike<'a>(conn: &StrikesDbConn, params: &[&str]) -> SlackResult {
-    if params.len() < 4 {
-        return Err(SlackError::InvalidArgs);
-    }
-
-    let excuse = params[1].parse::<Excusability>()?;
-    let action = params[2].parse::<Offense>()?;
-    let motive = params[3..].join(" ");
-    let bro_id = slack::parse_slack_id(params[0])?.to_string();
-
-    let new_strike = InsertableStrike {
-        excusability: excuse,
-        offense: action,
-        reason: motive,
-        brother_id: bro_id
-    };
-
+pub fn add_strike<'a>(conn: &StrikesDbConn, new_strike: InsertableStrike) -> SlackResult {
     diesel::insert_into(strikes).values(&new_strike).execute(&conn.0)?;
 
     let brother = brothers.filter(slack_id.eq(new_strike.brother_id)).first::<Brother>(&conn.0)?;
