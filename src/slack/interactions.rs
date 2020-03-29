@@ -43,8 +43,6 @@ impl data::FromDataSimple for ViewPayload {
             return Outcome::Failure((Status::InternalServerError, SlackError::InternalServerError(format!("{:?}", e))));
         }
 
-        println!("{}", &string);
-
         let payload: Value = serde_json::from_str(&string).unwrap();
         let interaction_type = match payload["type"].as_str().unwrap().parse::<InteractionType>() {
             Ok(t) => t,
