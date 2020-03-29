@@ -2,7 +2,7 @@ use rocket::State;
 use serde_json::Value;
 
 use crate::{ StrikesDbConn, SlackAuthToken};
-use crate::slack::{ SlackSlashCommand, SlackResult, SlackError };
+use crate::slack::{ SlackSlashCommand, SlackResult, SlackError, SlackResponse };
 use crate::slack::interactions::ViewPayload;
 use crate::db::InsertableStrike;
 use crate::db::excusability::Excusability;
@@ -31,7 +31,7 @@ pub fn send_add_strike_modal<'a>(slack_msg: &SlackSlashCommand, auth_token: Stat
         }
     }
 
-    Ok(String::new())
+    Ok(SlackResponse::None)
 }
 
 pub fn receive_add_strike_modal<'a>(conn: StrikesDbConn, view_payload: ViewPayload) -> SlackResult {
@@ -39,11 +39,16 @@ pub fn receive_add_strike_modal<'a>(conn: StrikesDbConn, view_payload: ViewPaylo
         return Err(SlackError::Unauthorized);
     }
 
+    let excusability = view_payload.values["add_brother_excusability_block"]["add_brother_excusability"]["selected_option"]["value"].as_str().unwrap().parse::<Excusability>()?;
+    let offense = view_payload.values["add_brother_offense_block"]["add_brother_offense"]["selected_option"]["value"].as_str().unwrap().parse::<Offense>()?;
+    let reason = view_payload.values["add_brother_reason_block"]["add_brother_reason"]["value"].as_str().unwrap();
+    let brother_id = view_payload.values["add_brother_target_block"]["add_brother_target"]["selected_user"].as_str().unwrap();
+
     let strike = InsertableStrike {
-        excusability: view_payload.values.get("add_brother_excusability").unwrap().parse::<Excusability>()?,
-        offense: view_payload.values.get("add_brother_offense").unwrap().parse::<Offense>()?,
-        reason: view_payload.values.get("add_brother_reason").unwrap().clone(),
-        brother_id: view_payload.brother.slack_id.clone()
+        excusability,
+        offense,
+        reason: reason.to_string(),
+        brother_id: brother_id.to_string()
     };
 
     let response_msg = super::strikes::add_strike(&conn, strike)?;
@@ -68,5 +73,5 @@ pub fn receive_add_strike_modal<'a>(conn: StrikesDbConn, view_payload: ViewPaylo
         }
     });
 
-    Ok(response.to_string())
+    Ok(SlackResponse::Raw(response.to_string()))
 }

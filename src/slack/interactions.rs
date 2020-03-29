@@ -1,5 +1,4 @@
 use std::io::Read;
-use std::collections::HashMap;
 
 use rocket::data;
 use rocket::http::Status;
@@ -31,7 +30,7 @@ impl std::str::FromStr for InteractionType {
 pub struct ViewPayload {
     pub interaction_type: InteractionType,
     pub brother: Brother,
-    pub values: HashMap<String, String>,
+    pub values: Value,
 }
 
 impl data::FromDataSimple for ViewPayload {
@@ -43,12 +42,19 @@ impl data::FromDataSimple for ViewPayload {
             return Outcome::Failure((Status::InternalServerError, SlackError::InternalServerError(format!("{:?}", e))));
         }
 
-        let payload: Value = serde_json::from_str(&string).unwrap();
+        let body: String;
+
+        match percent_encoding::percent_decode(string.as_bytes()).decode_utf8() {
+            Ok(req) => body = req.replace("+", " ").split("payload=").collect::<String>(),
+            Err(e) => return Outcome::Failure((Status::InternalServerError, SlackError::InternalServerError(format!("{:?}", e))))
+        }
+
+        let payload: Value = serde_json::from_str(&body).unwrap();
         let interaction_type = match payload["type"].as_str().unwrap().parse::<InteractionType>() {
             Ok(t) => t,
             Err(e) => return Outcome::Failure((Status::InternalServerError, e))
         };
-        let user_id = payload["user"].as_str().unwrap();
+        let user_id = payload["user"]["id"].as_str().unwrap();
 
         let conn = req.guard::<crate::StrikesDbConn>().succeeded().unwrap();
         let brother = match brothers.filter(slack_id.eq(user_id)).first::<Brother>(&conn.0) {
@@ -56,22 +62,10 @@ impl data::FromDataSimple for ViewPayload {
             Err(_) => return Outcome::Failure((Status::InternalServerError, SlackError::DatabaseError))
         };
 
-        let values = payload["view"]["state"]["values"].as_object().unwrap().values().map(|v: &Value| {
-            let action_id = v.as_object()
-                             .unwrap()
-                             .keys()
-                             .nth(0)
-                             .unwrap();
-            let value = v[action_id]["value"].as_str().unwrap();
-
-            (String::from(action_id), String::from(value))
-        })
-        .collect();
-
         Outcome::Success(ViewPayload {
             interaction_type,
             brother,
-            values
+            values: payload["view"]["state"]["values"].clone()
         })
     }
 }

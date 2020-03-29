@@ -3,7 +3,7 @@ use rocket::State;
 
 use super::{ StrikesDbConn, SlackAuthToken };
 use crate::db::{ Strike, Brother, InsertableStrike };
-use crate::slack::{ SlackSlashCommand, SlackError, SlackResult };
+use crate::slack::{ SlackSlashCommand, SlackError, SlackResult, SlackResponse };
 use crate::slack;
 use crate::schema::brothers::dsl::*;
 use crate::schema::strikes::dsl::*;
@@ -52,11 +52,11 @@ pub fn add_strike<'a>(conn: &StrikesDbConn, new_strike: InsertableStrike) -> Sla
     let brother = brothers.filter(slack_id.eq(new_strike.brother_id)).first::<Brother>(&conn.0)?;
     let num_strikes = Strike::belonging_to(&brother).load::<Strike>(&conn.0)?.len();
 
-    Ok(format!("{} now has {} strike{}",
+    Ok(SlackResponse::Text(format!("{} now has {} strike{}",
         brother.name,
         num_strikes,
         if num_strikes == 1 { "" } else { "s" }
-    ))
+    )))
 }
 
 fn rank_strikes(conn: &StrikesDbConn) -> SlackResult {
@@ -73,7 +73,7 @@ fn rank_strikes(conn: &StrikesDbConn) -> SlackResult {
         );
     }
 
-    Ok(res)
+    Ok(SlackResponse::Text(res))
 }
 
 fn list_brother_strikes(conn: &StrikesDbConn, params: &[&str]) -> SlackResult {
@@ -82,7 +82,7 @@ fn list_brother_strikes(conn: &StrikesDbConn, params: &[&str]) -> SlackResult {
     let brother_strikes = Strike::belonging_to(&brother).load::<Strike>(&conn.0)?;
 
     if brother_strikes.is_empty() {
-        return Ok(format!("{} has 0 strikes", brother.name));
+        return Ok(SlackResponse::Text(format!("{} has 0 strikes", brother.name)));
     }
 
     let mut res = String::new();
@@ -95,7 +95,7 @@ fn list_brother_strikes(conn: &StrikesDbConn, params: &[&str]) -> SlackResult {
         );
     }
 
-    Ok(res)
+    Ok(SlackResponse::Text(res))
 }
 
 fn remove_strike(conn: &StrikesDbConn, params: &[&str]) -> SlackResult {
@@ -108,7 +108,7 @@ fn remove_strike(conn: &StrikesDbConn, params: &[&str]) -> SlackResult {
     let brother_strikes = Strike::belonging_to(&brother).load::<Strike>(&conn.0)?;
 
     if brother_strikes.is_empty() {
-        return Ok(format!("{} has no strikes to remove", brother.name));
+        return Ok(SlackResponse::Text(format!("{} has no strikes to remove", brother.name)));
     }
 
     let strike_num = params[1].to_string().parse::<i32>()?;
@@ -119,20 +119,20 @@ fn remove_strike(conn: &StrikesDbConn, params: &[&str]) -> SlackResult {
     let strike = brother_strikes.get((strike_num - 1) as usize).unwrap();
     diesel::delete(strikes.filter(id.eq(strike.id))).execute(&conn.0)?;
 
-    Ok(format!("{} now has {} strike{}",
+    Ok(SlackResponse::Text(format!("{} now has {} strike{}",
                 brother.name,
                 brother_strikes.len() - 1,
                 if brother_strikes.len() - 1 == 1 { "" } else { "s" })
-            )
+            ))
 }
 
 fn reset_strikes(conn: &StrikesDbConn) -> SlackResult {
     diesel::delete(strikes).execute(&conn.0)?;
-    Ok("Strikes have been reset".to_string())
+    Ok(SlackResponse::Text("Strikes have been reset".to_string()))
 }
 
-fn help() -> String {
-    "*Available commands*:
+fn help() -> SlackResponse {
+    SlackResponse::Text("*Available commands*:
     >*Add a strike*
     >Type `/golem strikes add @{name} {excused | unexcused} {tardy | absence} {reason}` to add a strike to the specified user
     >*Remove a strike*
@@ -145,5 +145,5 @@ fn help() -> String {
     >This should only be done at the end of the semester
     >*Help*
     >Type `/golem strikes help` to display this message"
-    .to_string()
+    .to_string())
 }

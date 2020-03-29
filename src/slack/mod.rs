@@ -1,6 +1,6 @@
 pub mod interactions;
 
-use std::io::Read;
+use std::io::{ Read, Cursor };
 use std::collections::HashMap;
 use std::fmt;
 
@@ -8,6 +8,7 @@ use serde::Serialize;
 use rocket::request::Request;
 use rocket::data;
 use rocket::http::Status;
+use rocket::response::{self, Response, Responder};
 use rocket::Outcome;
 use diesel::prelude::*;
 
@@ -24,9 +25,23 @@ pub struct SlackSlashCommand {
 }
 
 #[derive(Serialize, Debug)]
-pub enum SlackResponse<'a> {
+pub enum SlackResponse {
     #[serde(rename = "text")]
-    Text(&'a str),
+    Text(String),
+    None,
+    Raw(String),
+}
+
+impl<'r> Responder<'r> for SlackResponse {
+    fn respond_to(self, _: &Request) -> response::Result<'r> {
+        let mut response = Response::build();
+        let response = match self {
+            SlackResponse::Text(text) => response.sized_body(Cursor::new(serde_json::to_string(&SlackResponse::Text(text)).unwrap())),
+            SlackResponse::None => &mut response,
+            SlackResponse::Raw(text) => response.sized_body(Cursor::new(format!("{}", text)))
+        };
+        response.ok()
+    }
 }
 
 #[derive(Debug)]
@@ -38,7 +53,7 @@ pub enum SlackError {
     UserError(String),
 }
 
-pub type SlackResult = Result<String, SlackError>;
+pub type SlackResult = Result<SlackResponse, SlackError>;
 
 impl fmt::Display for SlackError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -104,7 +119,7 @@ impl data::FromDataSimple for SlackSlashCommand {
     }
 }
 
-pub fn parse_slack_id(id: &str) -> SlackResult {
+pub fn parse_slack_id(id: &str) -> Result<&str, SlackError> {
     let (_, id) = id.split_at(2);
     let mat: regex::Match = match regex::Regex::new(r"([A-Z0-9])\w+")
                                 .map_err(|e|
@@ -115,7 +130,7 @@ pub fn parse_slack_id(id: &str) -> SlackResult {
     };
 
     match id.get(mat.start()..mat.end()) {
-        Some(s) => Ok(s.to_string()),
+        Some(s) => Ok(s),
         None => Err(SlackError::InternalServerError("Error parsing slack id".to_string()))
     }
 }
