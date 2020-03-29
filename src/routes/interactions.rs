@@ -17,6 +17,7 @@ pub fn send_add_strike_modal<'a>(slack_msg: &SlackSlashCommand, auth_token: Stat
 
     let client = reqwest::blocking::Client::new();
     let res = client.post("https://slack.com/api/views.open")
+        .header("Content-Type", "application/json")
         .bearer_auth(&auth_token.0)
         .body(body.to_string())
         .send()?;
@@ -26,14 +27,14 @@ pub fn send_add_strike_modal<'a>(slack_msg: &SlackSlashCommand, auth_token: Stat
 
     if let Value::Bool(ok) = json_res["ok"] {
         if !ok {
-            return Err(SlackError::InternalServerError("".to_string()));
+            return Err(SlackError::InternalServerError(text));
         }
     }
 
     Ok(String::new())
 }
 
-pub fn receive_add_strike_modal(conn: StrikesDbConn, view_payload: ViewPayload) -> SlackResult {
+pub fn receive_add_strike_modal<'a>(conn: StrikesDbConn, view_payload: ViewPayload) -> SlackResult {
     if !view_payload.brother.can_act {
         return Err(SlackError::Unauthorized);
     }

@@ -3,8 +3,6 @@ use rocket::State;
 
 use super::{ StrikesDbConn, SlackAuthToken };
 use crate::db::{ Strike, Brother, InsertableStrike };
-use crate::db::excusability::Excusability;
-use crate::db::offense::Offense;
 use crate::slack::{ SlackSlashCommand, SlackError, SlackResult };
 use crate::slack;
 use crate::schema::brothers::dsl::*;
