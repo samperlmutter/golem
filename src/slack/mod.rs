@@ -1,6 +1,6 @@
 pub mod interactions;
 
-use std::io::{ Read, Cursor };
+use std::io::Read;
 use std::collections::HashMap;
 use std::fmt;
 
@@ -10,6 +10,7 @@ use rocket::data;
 use rocket::http::Status;
 use rocket::response::{self, Response, Responder};
 use rocket::Outcome;
+use rocket_contrib::json::Json;
 use diesel::prelude::*;
 
 use crate::db::Brother;
@@ -33,13 +34,13 @@ pub enum SlackResponse {
 }
 
 impl<'r> Responder<'r> for SlackResponse {
-    fn respond_to(self, _: &Request) -> response::Result<'r> {
+    fn respond_to(self, req: &Request) -> response::Result<'r> {
         let mut response = Response::build();
-        let response = match self {
-            SlackResponse::Text(text) => response.sized_body(Cursor::new(serde_json::to_string(&SlackResponse::Text(text)).unwrap())),
-            SlackResponse::None => &mut response,
-            SlackResponse::Raw(text) => response.sized_body(Cursor::new(format!("{}", text)))
-        };
+        match self {
+            SlackResponse::Text(text) => {response.merge(Json(SlackResponse::Text(text)).respond_to(req).unwrap());}
+            SlackResponse::None => {},
+            SlackResponse::Raw(text) => {response.merge(Json(text).respond_to(req).unwrap());}
+        }
         response.ok()
     }
 }

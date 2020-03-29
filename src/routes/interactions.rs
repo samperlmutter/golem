@@ -59,7 +59,7 @@ pub fn receive_add_strike_modal<'a>(conn: StrikesDbConn, view_payload: ViewPaylo
             "type": "modal",
             "title": {
                 "type": "plain_text",
-                "text": "Updated view"
+                "text": "Success!"
             },
             "blocks": [
                 {
