@@ -18,6 +18,7 @@
     },
     "blocks": [{
             "type": "input",
+            "block_id": "add_brother_target_block",
             "element": {
                 "type": "users_select",
                 "placeholder": {
@@ -35,6 +36,7 @@
         },
         {
             "type": "input",
+            "block_id": "add_brother_excusability_block",
             "element": {
                 "type": "static_select",
                 "placeholder": {
@@ -69,6 +71,7 @@
         },
         {
             "type": "input",
+            "block_id": "add_brother_offense_block",
             "element": {
                 "type": "static_select",
                 "placeholder": {
@@ -103,6 +106,7 @@
         },
         {
             "type": "input",
+            "block_id": "add_brother_reason_block",
             "element": {
                 "type": "plain_text_input",
                 "multiline": true,
