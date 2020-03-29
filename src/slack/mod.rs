@@ -6,6 +6,7 @@ use std::fmt;
 
 use serde::Serialize;
 use rocket::request::Request;
+use rocket::http::ContentType;
 use rocket::data;
 use rocket::http::Status;
 use rocket::response::{self, Response, Responder};
@@ -39,7 +40,10 @@ impl<'r> Responder<'r> for SlackResponse {
         match self {
             SlackResponse::Text(text) => {response.merge(Json(SlackResponse::Text(text)).respond_to(req).unwrap());}
             SlackResponse::None => {},
-            SlackResponse::Raw(text) => {response.merge(Json(text).respond_to(req).unwrap());}
+            SlackResponse::Raw(text) => {
+                response.merge(text.respond_to(req).unwrap());
+                response.header(ContentType::JSON);
+            }
         }
         response.ok()
     }
