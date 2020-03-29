@@ -61,6 +61,10 @@ pub fn receive_add_strike_modal<'a>(conn: StrikesDbConn, view_payload: ViewPaylo
                 "type": "plain_text",
                 "text": "Success!"
             },
+            "close": {
+                "type": "plain_text",
+                "text": "Close"
+            },
             "blocks": [
                 {
                     "type": "section",
