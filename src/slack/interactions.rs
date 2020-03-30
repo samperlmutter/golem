@@ -28,6 +28,7 @@ impl std::str::FromStr for InteractionType {
 }
 
 pub struct ViewPayload {
+    pub modal_id: String,
     pub interaction_type: InteractionType,
     pub brother: Brother,
     pub values: Value,
@@ -62,7 +63,10 @@ impl data::FromDataSimple for ViewPayload {
             Err(_) => return Outcome::Failure((Status::InternalServerError, SlackError::DatabaseError))
         };
 
+        let modal_id = payload["callback_id"].as_str().unwrap().to_string().clone();
+
         Outcome::Success(ViewPayload {
+            modal_id,
             interaction_type,
             brother,
             values: payload["view"]["state"]["values"].clone()

@@ -18,8 +18,8 @@ pub fn index(conn: StrikesDbConn, slack_req: Result<SlackSlashCommand, SlackErro
 
 #[post("/interaction", format = "application/x-www-form-urlencoded", data = "<view_payload>")]
 pub fn interaction(conn: StrikesDbConn, view_payload: Result<ViewPayload, SlackError>) -> SlackResponse {
-    match view_payload {
-        Ok(view_payload) => interactions::receive_add_strike_modal(conn, view_payload).unwrap_or_else(|e| SlackResponse::Text(e.to_string())),
+    match view_payload.as_ref().map(|payload| (payload.modal_id.clone(), payload)) {
+        Ok((modal_id, payload)) => interactions::receive_add_strike_modal(conn, payload).unwrap_or_else(|e| SlackResponse::Text(e.to_string())),
         Err(err) => SlackResponse::Text(err.to_string())
     }
 }
