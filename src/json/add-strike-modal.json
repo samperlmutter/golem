@@ -1,6 +1,6 @@
 {
     "type": "modal",
-    "callback_id": "add_brother_modal",
+    "callback_id": "add_strike_modal",
     "title": {
         "type": "plain_text",
         "text": "Golem",
@@ -18,7 +18,7 @@
     },
     "blocks": [{
             "type": "input",
-            "block_id": "add_brother_target_block",
+            "block_id": "add_strike_target_block",
             "element": {
                 "type": "users_select",
                 "placeholder": {
@@ -26,7 +26,7 @@
                     "text": "Select a brother",
                     "emoji": true
                 },
-                "action_id": "add_brother_target"
+                "action_id": "add_strike_target"
             },
             "label": {
                 "type": "plain_text",
@@ -36,7 +36,7 @@
         },
         {
             "type": "input",
-            "block_id": "add_brother_excusability_block",
+            "block_id": "add_strike_excusability_block",
             "element": {
                 "type": "static_select",
                 "placeholder": {
@@ -44,7 +44,7 @@
                     "text": "Excusability",
                     "emoji": true
                 },
-                "action_id": "add_brother_excusability",
+                "action_id": "add_strike_excusability",
                 "options": [{
                         "text": {
                             "type": "plain_text",
@@ -71,7 +71,7 @@
         },
         {
             "type": "input",
-            "block_id": "add_brother_offense_block",
+            "block_id": "add_strike_offense_block",
             "element": {
                 "type": "static_select",
                 "placeholder": {
@@ -79,7 +79,7 @@
                     "text": "Offense",
                     "emoji": true
                 },
-                "action_id": "add_brother_offense",
+                "action_id": "add_strike_offense",
                 "options": [{
                         "text": {
                             "type": "plain_text",
@@ -106,11 +106,11 @@
         },
         {
             "type": "input",
-            "block_id": "add_brother_reason_block",
+            "block_id": "add_strike_reason_block",
             "element": {
                 "type": "plain_text_input",
                 "multiline": true,
-                "action_id": "add_brother_reason",
+                "action_id": "add_strike_reason",
                 "placeholder": {
                     "type": "plain_text",
                     "text": "Why are they getting a strike?",
