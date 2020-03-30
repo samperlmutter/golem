@@ -52,7 +52,7 @@ pub fn add_strike(conn: &StrikesDbConn, new_strike: InsertableStrike) -> Result<
     let brother = brothers.filter(slack_id.eq(new_strike.brother_id)).first::<Brother>(&conn.0)?;
     let num_strikes = Strike::belonging_to(&brother).load::<Strike>(&conn.0)?.len();
 
-    Ok(format!("{} now has {} strike{}",
+    Ok(format!("now {} now has {} strike{}",
         brother.name,
         num_strikes,
         if num_strikes == 1 { "" } else { "s" }
