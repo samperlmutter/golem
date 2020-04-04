@@ -31,7 +31,7 @@ impl StrikeAction {
         let help =
 "*Available commands*:
 >*Add a strike*
->Type `/golem strikes add @{name} {excused | unexcused} {tardy | absence} {reason}` to add a strike to the specified user
+>Type `/golem strikes add` to add a strike to the specified user
 >*Remove a strike*
 >Type `/golem strikes remove @{name} {strikeNumber}` to remove the specified strike from the specified
 >*List everyone's strikes*
