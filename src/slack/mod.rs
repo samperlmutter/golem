@@ -193,7 +193,7 @@ pub fn parse_slack_id(id: &str) -> Result<&str, SlackError> {
                                     SlackError::InternalServerError(format!("Error during slack id parsing: {:?}", e)))?
                                 .find(id) {
         Some(mat) => mat,
-        None => return Err(SlackError::InternalServerError("Error parsing slack id".to_string()))
+        None => return Err(SlackError::InternalServerError("Invalid user specified".to_string()))
     };
 
     match id.get(mat.start()..mat.end()) {
