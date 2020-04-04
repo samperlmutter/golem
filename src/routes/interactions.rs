@@ -94,8 +94,7 @@ pub fn send_remove_strike_modal<'a>(slack_msg: &SlackSlashCommand, auth_token: S
 }
 
 pub fn update_remove_strike_modal<'a>(conn: StrikesDbConn, view_payload: &ViewPayload) -> SlackResult {
-    let bro_id = view_payload.values["remove_strike_target_block"]["remove_strike_target"]["value"].as_str().unwrap();
-    let bro_id = crate::slack::parse_slack_id(bro_id)?;
+    let bro_id = view_payload.values["remove_strike_target_block"]["remove_strike_target"]["selected_user"].as_str().unwrap();
     let brother = brothers.filter(slack_id.eq(bro_id)).first::<Brother>(&conn.0)?;
     let brother_strikes = Strike::belonging_to(&brother).load::<Strike>(&conn.0)?;
     let mut options = Vec::new();
