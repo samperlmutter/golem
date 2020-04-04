@@ -11,7 +11,6 @@ use crate::slack::interactions::{ ViewPayload, ModalAction };
 pub fn index(conn: StrikesDbConn, slack_req: Result<SlackSlashCommand, SlackError>, auth_token: State<SlackAuthToken>) -> SlackResponse {
     match slack_req.as_ref().map(|msg| (msg.command.clone(), msg)) {
         Ok((SlashCmd::Strikes(_), slack_msg)) => strikes::handle_strikes(conn, slack_msg, auth_token).unwrap_or_else(|e| SlackResponse::Text(e.to_string())),
-        Ok(_) => SlackResponse::Text(SlackError::InternalServerError("Slash command parsing error".to_string()).to_string()),
         Err(err) => SlackResponse::Text(err.to_string())
     }
 }
