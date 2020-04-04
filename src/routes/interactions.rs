@@ -1,18 +1,18 @@
 use rocket::State;
 use serde_json::Value;
+use diesel::prelude::*;
 
 use crate::{ StrikesDbConn, SlackAuthToken};
 use crate::slack::{ SlackSlashCommand, SlackResult, SlackError, SlackResponse };
 use crate::slack::interactions::ViewPayload;
-use crate::db::InsertableStrike;
+use crate::db::{ Strike, InsertableStrike };
 use crate::db::excusability::Excusability;
 use crate::db::offense::Offense;
 
-pub fn send_add_strike_modal<'a>(slack_msg: &SlackSlashCommand, auth_token: State<'a, SlackAuthToken>) -> SlackResult {
-    let modal_json: Value = serde_json::from_str(include_str!("../json/add-strike-modal.json"))?;
+fn send_modal<'a>(modal: Value, trigger_id: &String, auth_token: State<'a, SlackAuthToken>) -> Result<(), SlackError> {
     let body = json! ({
-        "trigger_id": slack_msg.trigger_id,
-        "view": modal_json
+        "trigger_id": trigger_id,
+        "view": modal
     });
 
     let client = reqwest::blocking::Client::new();
@@ -31,14 +31,17 @@ pub fn send_add_strike_modal<'a>(slack_msg: &SlackSlashCommand, auth_token: Stat
         }
     }
 
+    Ok(())
+}
+
+pub fn send_add_strike_modal<'a>(slack_msg: &SlackSlashCommand, auth_token: State<'a, SlackAuthToken>) -> SlackResult {
+    let modal_json: Value = serde_json::from_str(include_str!("../json/add-strike-modal.json"))?;
+    send_modal(modal_json, &slack_msg.trigger_id, auth_token)?;
+
     Ok(SlackResponse::None)
 }
 
 pub fn receive_add_strike_modal<'a>(conn: StrikesDbConn, view_payload: &ViewPayload) -> SlackResult {
-    if !view_payload.brother.can_act {
-        return Err(SlackError::Unauthorized);
-    }
-
     let excusability = view_payload.values["add_strike_excusability_block"]["add_strike_excusability"]["selected_option"]["value"].as_str().unwrap().parse::<Excusability>()?;
     let offense = view_payload.values["add_strike_offense_block"]["add_strike_offense"]["selected_option"]["value"].as_str().unwrap().parse::<Offense>()?;
     let reason = view_payload.values["add_strike_reason_block"]["add_strike_reason"]["value"].as_str().unwrap();
@@ -71,6 +74,42 @@ pub fn receive_add_strike_modal<'a>(conn: StrikesDbConn, view_payload: &ViewPayl
                     "text": {
                         "type": "plain_text",
                         "text": response_msg
+                    }
+                }
+            ]
+        }
+    });
+
+    Ok(SlackResponse::Raw(response.to_string()))
+}
+
+pub fn send_remove_strike_modal<'a>(slack_msg: &SlackSlashCommand, auth_token: State<'a, SlackAuthToken>) -> SlackResult {
+    let modal_json: Value = serde_json::from_str(include_str!("../json/remove-strike-modal.json"))?;
+    send_modal(modal_json, &slack_msg.trigger_id, auth_token)?;
+
+    Ok(SlackResponse::None)
+}
+
+pub fn update_remove_strike_modal<'a>(conn: StrikesDbConn, view_payload: &ViewPayload) -> SlackResult {
+    let brother_strikes = Strike::belonging_to(&view_payload.brother).load::<Strike>(&conn.0)?;
+    let response = json!({
+        "response_action": "push",
+        "view": {
+            "type": "modal",
+            "title": {
+                "type": "plain_text",
+                "text": "Remove a strike"
+            },
+            "close": {
+                "type": "plain_text",
+                "text": "Close"
+            },
+            "blocks": [
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "plain_text",
+                        "text": "hi there"
                     }
                 }
             ]

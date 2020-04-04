@@ -19,6 +19,7 @@ pub fn index(conn: StrikesDbConn, slack_req: Result<SlackSlashCommand, SlackErro
 pub fn interaction(conn: StrikesDbConn, view_payload: Result<ViewPayload, SlackError>) -> SlackResponse {
     match view_payload.as_ref().map(|payload| (payload.modal_action, payload)) {
         Ok((ModalAction::AddStrike, payload)) => interactions::receive_add_strike_modal(conn, payload).unwrap_or_else(|e| SlackResponse::Text(e.to_string())),
+        Ok((ModalAction::RemoveStrike, payload)) => interactions::update_remove_strike_modal(conn, payload).unwrap_or_else(|e| SlackResponse::Text(e.to_string())),
         Err(err) => SlackResponse::Text(err.to_string())
     }
 }

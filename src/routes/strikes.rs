@@ -10,7 +10,7 @@ use crate::schema::strikes::dsl::*;
 pub fn handle_strikes(conn: StrikesDbConn, slack_msg: &SlackSlashCommand, auth_token: State<SlackAuthToken>) -> SlackResult {
     match &slack_msg.command {
         SlashCmd::Strikes(StrikeAction::Add) if slack_msg.brother.can_act => super::interactions::send_add_strike_modal(slack_msg, auth_token),
-        SlashCmd::Strikes(StrikeAction::Remove(brother, strike_id)) if slack_msg.brother.can_act => remove_strike(&conn, brother, *strike_id),
+        SlashCmd::Strikes(StrikeAction::Remove(brother, strike_id)) if slack_msg.brother.can_act => super::interactions::send_remove_strike_modal(slack_msg, auth_token),
         SlashCmd::Strikes(StrikeAction::List(brother)) => list_brother_strikes(&conn, brother),
         SlashCmd::Strikes(StrikeAction::Rank) => rank_strikes(&conn),
         SlashCmd::Strikes(StrikeAction::Reset) if slack_msg.brother.can_reset => reset_strikes(&conn),
@@ -24,7 +24,7 @@ pub fn add_strike(conn: &StrikesDbConn, new_strike: InsertableStrike) -> Result<
     let brother = brothers.filter(slack_id.eq(new_strike.brother_id)).first::<Brother>(&conn.0)?;
     let num_strikes = Strike::belonging_to(&brother).load::<Strike>(&conn.0)?.len();
 
-    Ok(format!("now {} now has {} strike{}",
+    Ok(format!("{} now has {} strike{}",
         brother.name,
         num_strikes,
         if num_strikes == 1 { "" } else { "s" }

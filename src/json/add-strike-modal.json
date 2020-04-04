@@ -3,7 +3,7 @@
     "callback_id": "add_strike_modal",
     "title": {
         "type": "plain_text",
-        "text": "Golem",
+        "text": "Add a strike",
         "emoji": true
     },
     "submit": {
