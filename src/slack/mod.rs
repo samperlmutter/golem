@@ -28,27 +28,33 @@ pub enum StrikeAction {
 
 impl StrikeAction {
     pub fn from_str(params: &[&str]) -> Result<Self, SlackError> {
-        match params[0] {
-            "add" => Ok(StrikeAction::Add),
-            "remove" if params.len() == 2 => Ok(StrikeAction::Remove(params[1].to_string())),
-            "list" if params.len() == 2 => Ok(StrikeAction::List(params[1].to_string())),
-            "list" if params.len() == 1 => Ok(StrikeAction::Rank),
-            "reset" => Ok(StrikeAction::Reset),
-            _ => Err(SlackError::InvalidCmd("*Available commands*:
-                >*Add a strike*
-                >Type `/golem strikes add @{name} {excused | unexcused} {tardy | absence} {reason}` to add a strike to the specified user
-                >*Remove a strike*
-                >Type `/golem strikes remove @{name} {strikeNumber}` to remove the specified strike from the specified
-                >*List everyone's strikes*
-                >Type `/golem strikes list [@{name}]` to list how many strikes each user has, sorted numerically
-                >Optionally mention a user to list information about their strikes
-                >*Reset strikes*
-                >Type `/golem strikes reset` to reset everyone's strikes to 0
-                >This should only be done at the end of the semester
-                >*Help*
-                >Type `/golem strikes help` to display this message"
-                .to_string())
-            )
+        let help =
+"*Available commands*:
+>*Add a strike*
+>Type `/golem strikes add @{name} {excused | unexcused} {tardy | absence} {reason}` to add a strike to the specified user
+>*Remove a strike*
+>Type `/golem strikes remove @{name} {strikeNumber}` to remove the specified strike from the specified
+>*List everyone's strikes*
+>Type `/golem strikes list [@{name}]` to list how many strikes each user has, sorted numerically
+>Optionally mention a user to list information about their strikes
+>*Reset strikes*
+>Type `/golem strikes reset` to reset everyone's strikes to 0
+>This should only be done at the end of the semester
+>*Help*
+>Type `/golem strikes help` to display this message"
+.to_string();
+
+        if params.len() > 0 {
+            match params[0] {
+                "add" => Ok(StrikeAction::Add),
+                "remove" if params.len() == 2 => Ok(StrikeAction::Remove(params[1].to_string())),
+                "list" if params.len() == 2 => Ok(StrikeAction::List(params[1].to_string())),
+                "list" if params.len() == 1 => Ok(StrikeAction::Rank),
+                "reset" => Ok(StrikeAction::Reset),
+                _ => Err(SlackError::InvalidCmd(help))
+            }
+        } else {
+            Err(SlackError::InvalidCmd(help))
         }
     }
 }
