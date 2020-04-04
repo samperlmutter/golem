@@ -31,7 +31,8 @@ impl std::str::FromStr for InteractionType {
 #[derive(Copy, Clone)]
 pub enum ModalAction {
     AddStrike,
-    RemoveStrike,
+    RemoveStrikeUser,
+    RemoveStrikeStrike,
 }
 
 impl std::str::FromStr for ModalAction {
@@ -40,7 +41,8 @@ impl std::str::FromStr for ModalAction {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "add_strike_modal" => Ok(ModalAction::AddStrike),
-            "remove_strike_modal" => Ok(ModalAction::RemoveStrike),
+            "remove_strike_modal_user_submission" => Ok(ModalAction::RemoveStrikeUser),
+            "remove_strike_modal_strike_submission" => Ok(ModalAction::RemoveStrikeStrike),
             _ => Err(SlackError::InvalidCmd("Error parsing modal_id".to_string()))
         }
     }

@@ -1,0 +1,56 @@
+{
+    "response_action": "push",
+    "view": {
+        "type": "modal",
+        "callback_id": "remove_strike_modal_strike_submission",
+        "title": {
+            "type": "plain_text",
+            "text": "Remove a strike"
+        },
+        "submit": {
+            "type": "plain_text",
+            "text": "Submit"
+        },
+        "close": {
+            "type": "plain_text",
+            "text": "Back"
+        },
+        "blocks": [{
+                "type": "input",
+                "block_id": "remove_strike_target_block",
+                "element": {
+                    "type": "users_select",
+                    "placeholder": {
+                        "type": "plain_text",
+                        "text": "Select a brother",
+                        "emoji": true
+                    },
+                    "action_id": "remove_strike_target"
+                },
+                "label": {
+                    "type": "plain_text",
+                    "text": "Select a brother",
+                    "emoji": true
+                }
+            },
+            {
+                "type": "input",
+                "block_id": "remove_strike_strike_block",
+                "element": {
+                    "type": "static_select",
+                    "action_id": "remove_strike_strike",
+                    "placeholder": {
+                        "type": "plain_text",
+                        "text": "Select a strike",
+                        "emoji": true
+                    }
+                },
+                "label": {
+                    "type": "plain_text",
+                    "text": "Select a strike",
+                    "emoji": true
+                }
+            }
+        ]
+    }
+}

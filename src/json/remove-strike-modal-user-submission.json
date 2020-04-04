@@ -1,6 +1,6 @@
 {
     "type": "modal",
-    "callback_id": "remove_strike_modal",
+    "callback_id": "remove_strike_modal_user_submission",
     "title": {
         "type": "plain_text",
         "text": "Remove a strike",

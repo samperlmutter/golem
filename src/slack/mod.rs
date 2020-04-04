@@ -20,7 +20,7 @@ use crate::schema::brothers::dsl::*;
 #[derive(Clone)]
 pub enum StrikeAction {
     Add,
-    Remove(Brother, i32),
+    Remove,
     List(Brother),
     Rank,
     Reset,
@@ -47,13 +47,7 @@ impl StrikeAction {
         if params.len() > 0 {
             match params[0] {
                 "add" => Ok(StrikeAction::Add),
-                "remove" if params.len() == 3 => {
-                    let bro_id = parse_slack_id(&params[1])?;
-                    let brother = brothers.filter(slack_id.eq(bro_id)).first::<Brother>(&conn.0)?;
-                    let strike_id = params[2].parse::<i32>()?;
-
-                    Ok(StrikeAction::Remove(brother, strike_id))
-                },
+                "remove" => Ok(StrikeAction::Remove),
                 "list" if params.len() == 2 => {
                     let bro_id = parse_slack_id(&params[1])?;
                     let brother = brothers.filter(slack_id.eq(bro_id)).first::<Brother>(&conn.0)?;
