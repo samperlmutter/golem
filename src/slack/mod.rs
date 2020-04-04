@@ -20,14 +20,14 @@ use crate::schema::brothers::dsl::*;
 #[derive(Clone)]
 pub enum StrikeAction {
     Add,
-    Remove(String),
-    List(String),
+    Remove(Brother, i32),
+    List(Brother),
     Rank,
     Reset,
 }
 
 impl StrikeAction {
-    pub fn from_str(params: &[&str]) -> Result<Self, SlackError> {
+    pub fn from_str(conn: &crate::StrikesDbConn, params: &[&str]) -> Result<Self, SlackError> {
         let help =
 "*Available commands*:
 >*Add a strike*
@@ -47,8 +47,19 @@ impl StrikeAction {
         if params.len() > 0 {
             match params[0] {
                 "add" => Ok(StrikeAction::Add),
-                "remove" if params.len() == 2 => Ok(StrikeAction::Remove(params[1].to_string())),
-                "list" if params.len() == 2 => Ok(StrikeAction::List(params[1].to_string())),
+                "remove" if params.len() == 3 => {
+                    let bro_id = parse_slack_id(&params[1])?;
+                    let brother = brothers.filter(slack_id.eq(bro_id)).first::<Brother>(&conn.0)?;
+                    let strike_id = params[2].parse::<i32>()?;
+
+                    Ok(StrikeAction::Remove(brother, strike_id))
+                },
+                "list" if params.len() == 2 => {
+                    let bro_id = parse_slack_id(&params[1])?;
+                    let brother = brothers.filter(slack_id.eq(bro_id)).first::<Brother>(&conn.0)?;
+
+                    Ok(StrikeAction::List(brother))
+                },
                 "list" if params.len() == 1 => Ok(StrikeAction::Rank),
                 "reset" => Ok(StrikeAction::Reset),
                 _ => Err(SlackError::InvalidCmd(help))
@@ -150,6 +161,7 @@ impl data::FromDataSimple for SlackSlashCommand {
             fields.insert(key, val);
         }
 
+        let conn = req.guard::<crate::StrikesDbConn>().succeeded().unwrap();
         let mut iter = fields.get("text").unwrap().as_str().split_whitespace();
 
         let cmd = match iter.next() {
@@ -159,7 +171,7 @@ impl data::FromDataSimple for SlackSlashCommand {
 
         let command = match cmd {
             "strikes" => {
-                let action = match StrikeAction::from_str(&iter.collect::<Vec<&str>>()) {
+                let action = match StrikeAction::from_str(&conn, &iter.collect::<Vec<&str>>()) {
                     Ok(sa) => sa,
                     Err(e) => return Outcome::Failure((Status::InternalServerError, e))
                 };
@@ -171,7 +183,6 @@ impl data::FromDataSimple for SlackSlashCommand {
         let user_id = fields.get("user_id").unwrap().clone();
         let trigger_id = fields.get("trigger_id").unwrap().clone();
 
-        let conn = req.guard::<crate::StrikesDbConn>().succeeded().unwrap();
         let brother = match brothers.filter(slack_id.eq(fields.get("user_id").unwrap())).first::<Brother>(&conn.0) {
             Ok(brother) => brother,
             Err(_) => return Outcome::Failure((Status::InternalServerError, SlackError::DatabaseError))

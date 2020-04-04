@@ -8,7 +8,7 @@ use crate::schema::{ brothers, strikes };
 use excusability::Excusability;
 use offense::Offense;
 
-#[derive(Identifiable, Queryable, Debug, Deserialize, PartialEq)]
+#[derive(Identifiable, Queryable, Debug, Deserialize, PartialEq, Clone)]
 #[primary_key(slack_id)]
 pub struct Brother {
     pub slack_id: String,
