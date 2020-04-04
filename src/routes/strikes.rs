@@ -3,46 +3,19 @@ use rocket::State;
 
 use super::{ StrikesDbConn, SlackAuthToken };
 use crate::db::{ Strike, Brother, InsertableStrike };
-use crate::slack::{ SlackSlashCommand, SlackError, SlackResult, SlackResponse };
+use crate::slack::{ SlackSlashCommand, SlackError, SlackResult, SlackResponse, StrikeAction, SlashCmd };
 use crate::slack;
 use crate::schema::brothers::dsl::*;
 use crate::schema::strikes::dsl::*;
 
-pub fn auth_strikes(conn: StrikesDbConn, slack_msg: &SlackSlashCommand, auth_token: State<SlackAuthToken>) -> SlackResult {
-    match slack_msg.text.split_whitespace().nth(0).unwrap() {
-        "add" | "remove" => {
-            if slack_msg.brother.can_act {
-                strikes_handler(conn, slack_msg, auth_token)
-            } else {
-                Err(SlackError::Unauthorized)
-            }
-        }
-        "reset" => {
-            if slack_msg.brother.can_reset {
-                strikes_handler(conn, slack_msg, auth_token)
-            } else {
-                Err(SlackError::Unauthorized)
-            }
-        }
-        _ => strikes_handler(conn, slack_msg, auth_token)
-    }
-}
-
-pub fn strikes_handler(conn: StrikesDbConn, slack_msg: &SlackSlashCommand, auth_token: State<SlackAuthToken>) -> SlackResult {
-    let params: Vec<&str> = slack_msg.text.split_whitespace().skip(1).collect();
-
-    match params[0] {
-        "add" => super::interactions::send_add_strike_modal(slack_msg, auth_token),
-        "list" => {
-            match params.len() {
-                1 => rank_strikes(&conn),
-                2 => list_brother_strikes(&conn, &params[1..]),
-                _ => Err(SlackError::InvalidArgs)
-            }
-        },
-        "remove" => remove_strike(&conn, &params[1..]),
-        "reset" => reset_strikes(&conn),
-        _ => Ok(help())
+pub fn handle_strikes(conn: StrikesDbConn, slack_msg: &SlackSlashCommand, auth_token: State<SlackAuthToken>) -> SlackResult {
+    match &slack_msg.command {
+        SlashCmd::Strikes(StrikeAction::Add) if slack_msg.brother.can_act => super::interactions::send_add_strike_modal(slack_msg, auth_token),
+        SlashCmd::Strikes(StrikeAction::Remove(params)) if slack_msg.brother.can_act => remove_strike(&conn, &params.split_whitespace().collect::<Vec<&str>>()),
+        SlashCmd::Strikes(StrikeAction::List(params)) => list_brother_strikes(&conn, &params.split_whitespace().collect::<Vec<&str>>()),
+        SlashCmd::Strikes(StrikeAction::Rank) => rank_strikes(&conn),
+        SlashCmd::Strikes(StrikeAction::Reset) if slack_msg.brother.can_reset => reset_strikes(&conn),
+        _ => Err(SlackError::Unauthorized)
     }
 }
 
@@ -129,21 +102,4 @@ fn remove_strike(conn: &StrikesDbConn, params: &[&str]) -> SlackResult {
 fn reset_strikes(conn: &StrikesDbConn) -> SlackResult {
     diesel::delete(strikes).execute(&conn.0)?;
     Ok(SlackResponse::Text("Strikes have been reset".to_string()))
-}
-
-fn help() -> SlackResponse {
-    SlackResponse::Text("*Available commands*:
-    >*Add a strike*
-    >Type `/golem strikes add @{name} {excused | unexcused} {tardy | absence} {reason}` to add a strike to the specified user
-    >*Remove a strike*
-    >Type `/golem strikes remove @{name} {strikeNumber}` to remove the specified strike from the specified
-    >*List everyone's strikes*
-    >Type `/golem strikes list [@{name}]` to list how many strikes each user has, sorted numerically
-    >Optionally mention a user to list information about their strikes
-    >*Reset strikes*
-    >Type `/golem strikes reset` to reset everyone's strikes to 0
-    >This should only be done at the end of the semester
-    >*Help*
-    >Type `/golem strikes help` to display this message"
-    .to_string())
 }

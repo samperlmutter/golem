@@ -17,13 +17,45 @@ use diesel::prelude::*;
 use crate::db::Brother;
 use crate::schema::brothers::dsl::*;
 
-#[derive(Debug)]
-pub struct SlackSlashCommand {
-    pub user_id: String,
-    pub command: String,
-    pub text: String,
-    pub trigger_id: String,
-    pub brother: Brother,
+#[derive(Clone)]
+pub enum StrikeAction {
+    Add,
+    Remove(String),
+    List(String),
+    Rank,
+    Reset,
+}
+
+impl StrikeAction {
+    pub fn from_str(params: &[&str]) -> Result<Self, SlackError> {
+        match params[0] {
+            "add" => Ok(StrikeAction::Add),
+            "remove" if params.len() == 2 => Ok(StrikeAction::Remove(params[1].to_string())),
+            "list" if params.len() == 2 => Ok(StrikeAction::List(params[1].to_string())),
+            "list" if params.len() == 1 => Ok(StrikeAction::Rank),
+            "reset" => Ok(StrikeAction::Reset),
+            _ => Err(SlackError::InvalidCmd("*Available commands*:
+                >*Add a strike*
+                >Type `/golem strikes add @{name} {excused | unexcused} {tardy | absence} {reason}` to add a strike to the specified user
+                >*Remove a strike*
+                >Type `/golem strikes remove @{name} {strikeNumber}` to remove the specified strike from the specified
+                >*List everyone's strikes*
+                >Type `/golem strikes list [@{name}]` to list how many strikes each user has, sorted numerically
+                >Optionally mention a user to list information about their strikes
+                >*Reset strikes*
+                >Type `/golem strikes reset` to reset everyone's strikes to 0
+                >This should only be done at the end of the semester
+                >*Help*
+                >Type `/golem strikes help` to display this message"
+                .to_string())
+            )
+        }
+    }
+}
+
+#[derive(Clone)]
+pub enum SlashCmd {
+    Strikes(StrikeAction),
 }
 
 #[derive(Serialize, Debug)]
@@ -56,6 +88,7 @@ pub enum SlackError {
     InvalidArgs,
     DatabaseError,
     UserError(String),
+    InvalidCmd(String),
 }
 
 pub type SlackResult = Result<SlackResponse, SlackError>;
@@ -68,6 +101,7 @@ impl fmt::Display for SlackError {
             SlackError::InvalidArgs => write!(f, "Invalid number of arguments"),
             SlackError::DatabaseError => write!(f, "Error querying database"),
             SlackError::UserError(msg) => write!(f, "Error: {}", msg),
+            SlackError::InvalidCmd(help_text) => write!(f, "{}", help_text),
         }
     }
 }
@@ -76,6 +110,13 @@ impl<E: std::error::Error> From<E> for SlackError {
     fn from(e: E) -> Self {
         SlackError::InternalServerError(format!("{:?}", e))
     }
+}
+
+pub struct SlackSlashCommand {
+    pub user_id: String,
+    pub command: SlashCmd,
+    pub trigger_id: String,
+    pub brother: Brother,
 }
 
 impl data::FromDataSimple for SlackSlashCommand {
@@ -103,9 +144,25 @@ impl data::FromDataSimple for SlackSlashCommand {
             fields.insert(key, val);
         }
 
+        let mut iter = fields.get("text").unwrap().as_str().split_whitespace();
+
+        let cmd = match iter.next() {
+            Some(c) => c,
+            None => return Outcome::Failure((Status::InternalServerError, SlackError::InvalidArgs))
+        };
+
+        let command = match cmd {
+            "strikes" => {
+                let action = match StrikeAction::from_str(&iter.collect::<Vec<&str>>()) {
+                    Ok(sa) => sa,
+                    Err(e) => return Outcome::Failure((Status::InternalServerError, e))
+                };
+                SlashCmd::Strikes(action)
+            }
+            _ => return Outcome::Failure((Status::InternalServerError, SlackError::InvalidArgs))
+        };
+
         let user_id = fields.get("user_id").unwrap().clone();
-        let command = fields.get("command").unwrap().clone();
-        let text = fields.get("text").unwrap().clone();
         let trigger_id = fields.get("trigger_id").unwrap().clone();
 
         let conn = req.guard::<crate::StrikesDbConn>().succeeded().unwrap();
@@ -117,7 +174,6 @@ impl data::FromDataSimple for SlackSlashCommand {
         Outcome::Success(SlackSlashCommand {
             user_id,
             command,
-            text,
             brother,
             trigger_id,
         })

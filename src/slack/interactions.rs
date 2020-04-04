@@ -10,6 +10,7 @@ use crate::db::Brother;
 use super::SlackError;
 use crate::schema::brothers::dsl::*;
 
+#[derive(Copy, Clone)]
 pub enum InteractionType {
     ViewSubmission,
     ViewClosed
@@ -27,8 +28,24 @@ impl std::str::FromStr for InteractionType {
     }
 }
 
+#[derive(Copy, Clone)]
+pub enum ModalAction {
+    AddStrike,
+}
+
+impl std::str::FromStr for ModalAction {
+    type Err = SlackError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "add_strike_modal" => Ok(ModalAction::AddStrike),
+            _ => Err(SlackError::InvalidCmd("Error parsing modal_id".to_string()))
+        }
+    }
+}
+
 pub struct ViewPayload {
-    pub modal_id: String,
+    pub modal_action: ModalAction,
     pub interaction_type: InteractionType,
     pub brother: Brother,
     pub values: Value,
@@ -63,10 +80,13 @@ impl data::FromDataSimple for ViewPayload {
             Err(_) => return Outcome::Failure((Status::InternalServerError, SlackError::DatabaseError))
         };
 
-        let modal_id = payload["callback_id"].as_str().unwrap().to_string().clone();
+        let modal_action = match payload["view"]["callback_id"].as_str().unwrap().parse::<ModalAction>() {
+            Ok(modal) => modal,
+            Err(e) => return Outcome::Failure((Status::InternalServerError, e))
+        };
 
         Outcome::Success(ViewPayload {
-            modal_id,
+            modal_action,
             interaction_type,
             brother,
             values: payload["view"]["state"]["values"].clone()
