@@ -97,6 +97,35 @@ pub fn update_remove_strike_modal<'a>(conn: StrikesDbConn, view_payload: &ViewPa
     let bro_id = view_payload.values["remove_strike_target_block"]["remove_strike_target"]["selected_user"].as_str().unwrap();
     let brother = brothers.filter(slack_id.eq(bro_id)).first::<Brother>(&conn.0)?;
     let brother_strikes = Strike::belonging_to(&brother).load::<Strike>(&conn.0)?;
+
+    if brother_strikes.is_empty() {
+        let response = json!({
+            "response_action": "update",
+            "view": {
+                "type": "modal",
+                "title": {
+                    "type": "plain_text",
+                    "text": "Remove a strike"
+                },
+                "close": {
+                    "type": "plain_text",
+                    "text": "Close"
+                },
+                "blocks": [
+                    {
+                        "type": "section",
+                        "text": {
+                            "type": "plain_text",
+                            "text": format!("{} doesn't have any strikes", brother.name)
+                        }
+                    }
+                ]
+            }
+        });
+
+        return Ok(SlackResponse::Raw(response.to_string()));
+    }
+
     let mut options = Vec::new();
     for strike in brother_strikes {
         options.push(json!({
@@ -115,7 +144,7 @@ pub fn update_remove_strike_modal<'a>(conn: StrikesDbConn, view_payload: &ViewPa
 }
 
 pub fn receive_remove_strike_modal<'a>(conn: StrikesDbConn, view_payload: &ViewPayload) -> SlackResult {
-    let strike_id= view_payload.values["remove_strike_strike_block"]["remove_strike_strike"]["as_str"].as_i64().unwrap() as i32;
+    let strike_id = view_payload.values["remove_strike_strike_block"]["remove_strike_strike"]["selected_option"]["value"].as_str().unwrap().parse::<i32>()?;
     diesel::delete(strikes.filter(id.eq(strike_id))).execute(&conn.0)?;
 
     let response = json!({
