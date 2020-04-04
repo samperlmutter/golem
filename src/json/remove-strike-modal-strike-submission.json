@@ -15,35 +15,13 @@
             "type": "plain_text",
             "text": "Back"
         },
-        "blocks": [{
-                "type": "input",
-                "block_id": "remove_strike_target_block",
-                "element": {
-                    "type": "users_select",
-                    "placeholder": {
-                        "type": "plain_text",
-                        "text": "Select a brother",
-                        "emoji": true
-                    },
-                    "action_id": "remove_strike_target"
-                },
-                "label": {
-                    "type": "plain_text",
-                    "text": "Select a brother",
-                    "emoji": true
-                }
-            },
+        "blocks": [
             {
                 "type": "input",
                 "block_id": "remove_strike_strike_block",
                 "element": {
-                    "type": "static_select",
-                    "action_id": "remove_strike_strike",
-                    "placeholder": {
-                        "type": "plain_text",
-                        "text": "Select a strike",
-                        "emoji": true
-                    }
+                    "type": "radio_buttons",
+                    "action_id": "remove_strike_strike"
                 },
                 "label": {
                     "type": "plain_text",

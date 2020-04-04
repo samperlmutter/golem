@@ -101,15 +101,15 @@ pub fn update_remove_strike_modal<'a>(conn: StrikesDbConn, view_payload: &ViewPa
     for strike in brother_strikes {
         options.push(json!({
             "text": {
-                "type": "plain_text",
+                "type": "mrkdwn",
                 "text": format!("{}", strike)
             },
-            "value": strike.id
+            "value": strike.id.to_string()
         }));
     }
 
     let mut response: Value = serde_json::from_str(include_str!("../json/remove-strike-modal-strike-submission.json"))?;
-    response["view"]["blocks"][1]["element"].as_object_mut().unwrap().insert("options".to_string(), Value::Array(options));
+    response["view"]["blocks"][0]["element"].as_object_mut().unwrap().insert("options".to_string(), Value::Array(options));
 
     Ok(SlackResponse::Raw(response.to_string()))
 }
