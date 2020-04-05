@@ -69,7 +69,7 @@ pub fn update_remove_strike_modal<'a>(conn: StrikesDbConn, view_payload: &ViewPa
 
     if brother_strikes.is_empty() {
         let response = json!({
-            "response_action": "update",
+            "response_action": "push",
             "view": {
                 "type": "modal",
                 "title": {
@@ -78,7 +78,7 @@ pub fn update_remove_strike_modal<'a>(conn: StrikesDbConn, view_payload: &ViewPa
                 },
                 "close": {
                     "type": "plain_text",
-                    "text": "Close"
+                    "text": "Back"
                 },
                 "blocks": [
                     {
