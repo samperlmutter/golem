@@ -1,16 +1,17 @@
 use diesel::prelude::*;
 use rocket::State;
+use serde_json::Value;
 
 use super::{ StrikesDbConn, SlackAuthToken };
-use crate::db::{ Strike, Brother, InsertableStrike };
+use crate::db::{ Strike, Brother };
 use crate::slack::{ SlackSlashCommand, SlackError, SlackResult, SlackResponse, StrikeAction, SlashCmd };
 use crate::schema::brothers::dsl::*;
 use crate::schema::strikes::dsl::*;
 
 pub fn handle_strikes(conn: StrikesDbConn, slack_msg: &SlackSlashCommand, auth_token: State<SlackAuthToken>) -> SlackResult {
     match &slack_msg.command {
-        SlashCmd::Strikes(StrikeAction::Add) if slack_msg.brother.can_act => super::interactions::send_add_strike_modal(slack_msg, auth_token),
-        SlashCmd::Strikes(StrikeAction::Remove) if slack_msg.brother.can_act => super::interactions::send_remove_strike_modal(slack_msg, auth_token),
+        SlashCmd::Strikes(StrikeAction::Add) if slack_msg.brother.can_act => send_add_strike_modal(slack_msg, auth_token),
+        SlashCmd::Strikes(StrikeAction::Remove) if slack_msg.brother.can_act => send_remove_strike_modal(slack_msg, auth_token),
         SlashCmd::Strikes(StrikeAction::List(brother)) => list_brother_strikes(&conn, brother),
         SlashCmd::Strikes(StrikeAction::Rank) => rank_strikes(&conn),
         SlashCmd::Strikes(StrikeAction::Reset) if slack_msg.brother.can_reset => reset_strikes(&conn),
@@ -18,17 +19,18 @@ pub fn handle_strikes(conn: StrikesDbConn, slack_msg: &SlackSlashCommand, auth_t
     }
 }
 
-pub fn add_strike(conn: &StrikesDbConn, new_strike: InsertableStrike) -> Result<String, SlackError> {
-    diesel::insert_into(strikes).values(&new_strike).execute(&conn.0)?;
+fn send_add_strike_modal<'a>(slack_msg: &SlackSlashCommand, auth_token: State<'a, SlackAuthToken>) -> SlackResult {
+    let modal_json: Value = serde_json::from_str(include_str!("../json/add-strike-modal.json"))?;
+    send_modal(modal_json, &slack_msg.trigger_id, auth_token)?;
 
-    let brother = brothers.filter(slack_id.eq(new_strike.brother_id)).first::<Brother>(&conn.0)?;
-    let num_strikes = Strike::belonging_to(&brother).load::<Strike>(&conn.0)?.len();
+    Ok(SlackResponse::None)
+}
 
-    Ok(format!("{} now has {} strike{}",
-        brother.name,
-        num_strikes,
-        if num_strikes == 1 { "" } else { "s" }
-    ))
+fn send_remove_strike_modal<'a>(slack_msg: &SlackSlashCommand, auth_token: State<'a, SlackAuthToken>) -> SlackResult {
+    let modal_json: Value = serde_json::from_str(include_str!("../json/remove-strike-modal-user-submission.json"))?;
+    send_modal(modal_json, &slack_msg.trigger_id, auth_token)?;
+
+    Ok(SlackResponse::None)
 }
 
 fn rank_strikes(conn: &StrikesDbConn) -> SlackResult {
@@ -71,4 +73,29 @@ fn list_brother_strikes(conn: &StrikesDbConn, brother: &Brother) -> SlackResult 
 fn reset_strikes(conn: &StrikesDbConn) -> SlackResult {
     diesel::delete(strikes).execute(&conn.0)?;
     Ok(SlackResponse::Text("Strikes have been reset".to_string()))
+}
+
+fn send_modal<'a>(modal: Value, trigger_id: &String, auth_token: State<'a, SlackAuthToken>) -> Result<(), SlackError> {
+    let body = json! ({
+        "trigger_id": trigger_id,
+        "view": modal
+    });
+
+    let client = reqwest::blocking::Client::new();
+    let res = client.post("https://slack.com/api/views.open")
+        .header("Content-Type", "application/json")
+        .bearer_auth(&auth_token.0)
+        .body(body.to_string())
+        .send()?;
+
+    let text = res.text()?;
+    let json_res: Value = serde_json::from_str(&text)?;
+
+    if let Value::Bool(ok) = json_res["ok"] {
+        if !ok {
+            return Err(SlackError::InternalServerError(text));
+        }
+    }
+
+    Ok(())
 }
