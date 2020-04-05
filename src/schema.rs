@@ -9,6 +9,15 @@ table! {
 }
 
 table! {
+    points (id) {
+        id -> Integer,
+        amount -> Integer,
+        reason -> Varchar,
+        brother_id -> Varchar,
+    }
+}
+
+table! {
     strikes (id) {
         id -> Integer,
         excusability -> Integer,
@@ -20,5 +29,6 @@ table! {
 
 allow_tables_to_appear_in_same_query!(
     brothers,
+    points,
     strikes,
 );

@@ -16,6 +16,7 @@ use diesel::prelude::*;
 
 use crate::db::Brother;
 use crate::schema::brothers::dsl::*;
+use crate::StrikesDbConn;
 
 #[derive(Clone)]
 pub enum StrikeAction {
@@ -27,7 +28,7 @@ pub enum StrikeAction {
 }
 
 impl StrikeAction {
-    pub fn from_str(conn: &crate::StrikesDbConn, params: &[&str]) -> Result<Self, SlackError> {
+    pub fn from_str(conn: &StrikesDbConn, params: &[&str]) -> Result<Self, SlackError> {
         let help =
 "*Available commands*:
 >*Add a strike*
@@ -65,8 +66,56 @@ impl StrikeAction {
 }
 
 #[derive(Clone)]
+pub enum PointAction {
+    Add,
+    Remove,
+    List(Brother),
+    Rank,
+    Reset,
+}
+
+impl PointAction {
+    pub fn from_str(conn: &StrikesDbConn, params: &[&str]) -> Result<Self, SlackError> {
+        let help =
+"*Available commands*:
+>*Add a strike*
+>Type `/golem strikes add` to add a strike to the specified user
+>*Remove a strike*
+>Type `/golem strikes remove @{name} {strikeNumber}` to remove the specified strike from the specified
+>*List everyone's strikes*
+>Type `/golem strikes list [@{name}]` to list how many strikes each user has, sorted numerically
+>Optionally mention a user to list information about their strikes
+>*Reset strikes*
+>Type `/golem strikes reset` to reset everyone's strikes to 0
+>This should only be done at the end of the semester
+>*Help*
+>Type `/golem strikes help` to display this message"
+.to_string();
+
+        if params.len() > 0 {
+            match params[0] {
+                "add" => Ok(PointAction::Add),
+                "remove" => Ok(PointAction::Remove),
+                "list" if params.len() == 2 => {
+                    let bro_id = parse_slack_id(&params[1])?;
+                    let brother = brothers.filter(slack_id.eq(bro_id)).first::<Brother>(&conn.0)?;
+
+                    Ok(PointAction::List(brother))
+                },
+                "list" if params.len() == 1 => Ok(PointAction::Rank),
+                "reset" => Ok(PointAction::Reset),
+                _ => Err(SlackError::InvalidCmd(help))
+            }
+        } else {
+            Err(SlackError::InvalidCmd(help))
+        }
+    }
+}
+
+#[derive(Clone)]
 pub enum SlashCmd {
     Strikes(StrikeAction),
+    Points(PointAction)
 }
 
 #[derive(Serialize, Debug)]
@@ -170,6 +219,13 @@ impl data::FromDataSimple for SlackSlashCommand {
                     Err(e) => return Outcome::Failure((Status::InternalServerError, e))
                 };
                 SlashCmd::Strikes(action)
+            }
+            "points" => {
+                let action = match PointAction::from_str(&conn, &iter.collect::<Vec<&str>>()) {
+                    Ok(sa) => sa,
+                    Err(e) => return Outcome::Failure((Status::InternalServerError, e))
+                };
+                SlashCmd::Points(action)
             }
             _ => return Outcome::Failure((Status::InternalServerError, SlackError::InvalidArgs))
         };

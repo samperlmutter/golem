@@ -4,7 +4,7 @@ pub mod offense;
 use std::fmt::*;
 use serde::Deserialize;
 
-use crate::schema::{ brothers, strikes };
+use crate::schema::{ brothers, strikes, points };
 use excusability::Excusability;
 use offense::Offense;
 
@@ -42,5 +42,29 @@ pub struct InsertableStrike {
 impl Display for Strike {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         write!(f, "*{} {}* for reason: *{}*", self.excusability, self.offense, self.reason)
+    }
+}
+
+#[derive(Identifiable, Queryable, Associations, PartialEq, Debug)]
+#[belongs_to(Brother)]
+#[table_name = "points"]
+pub struct PointsEntry {
+    pub id: i32,
+    pub amount: i32,
+    pub reason: String,
+    pub brother_id: String,
+}
+
+#[derive(Insertable, PartialEq)]
+#[table_name = "points"]
+pub struct InsertablePointsEntry {
+    pub amount: i32,
+    pub reason: String,
+    pub brother_id: String,
+}
+
+impl Display for PointsEntry {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        write!(f, "*{} point{}* for *{}*", self.amount, if self.amount == 1 { "" } else { "s" }, self.reason)
     }
 }
