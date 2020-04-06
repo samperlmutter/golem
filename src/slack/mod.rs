@@ -32,15 +32,15 @@ impl StrikeAction {
         let help =
 "*Available commands*:
 >*Add a strike*
->Type `/golem strikes add` to add a strike to the specified user
+>Type `/golem strikes add` to add a strike to the specified brother
 >*Remove a strike*
->Type `/golem strikes remove @{name} {strikeNumber}` to remove the specified strike from the specified
+>Type `/golem strikes remove` to remove a strike from a brother
 >*List everyone's strikes*
->Type `/golem strikes list [@{name}]` to list how many strikes each user has, sorted numerically
->Optionally mention a user to list information about their strikes
+>Type `/golem strikes list [@{name}]` to list how many strikes each brother has, sorted alphabetically
+>Optionally mention a brother to list information about their strikes
 >*Reset strikes*
 >Type `/golem strikes reset` to reset everyone's strikes to 0
->This should only be done at the end of the semester
+>This should only be done at the end of the semester and requires additional permissions
 >*Help*
 >Type `/golem strikes help` to display this message"
 .to_string();
@@ -78,18 +78,18 @@ impl PointAction {
     pub fn from_str(conn: &StrikesDbConn, params: &[&str]) -> Result<Self, SlackError> {
         let help =
 "*Available commands*:
->*Add a strike*
->Type `/golem strikes add` to add a strike to the specified user
->*Remove a strike*
->Type `/golem strikes remove @{name} {strikeNumber}` to remove the specified strike from the specified
->*List everyone's strikes*
->Type `/golem strikes list [@{name}]` to list how many strikes each user has, sorted numerically
->Optionally mention a user to list information about their strikes
->*Reset strikes*
->Type `/golem strikes reset` to reset everyone's strikes to 0
->This should only be done at the end of the semester
+>*Add points*
+>Type `/golem points add` to award points to a brother
+>*Remove points*
+>Type `/golem points remove` to take points from a brother
+>*List everyone's points*
+>Type `/golem points list [@{name}]` to list how many points each brother has, sorted by number of points
+>Optionally mention a brother to list information about their points
+>*Reset points*
+>Type `/golem points reset` to reset everyone's points to 0
+>This should only be done at the end of the semester and requires additional permissions
 >*Help*
->Type `/golem strikes help` to display this message"
+>Type `/golem points help` to display this message"
 .to_string();
 
         if params.len() > 0 {
