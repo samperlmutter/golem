@@ -48,10 +48,11 @@ impl<DB: Backend> FromSql<Integer, DB> for Offense
     {
         fn from_sql(bytes: Option<&DB::RawValue>) -> deserialize::Result<Self> {
             let v = i32::from_sql(bytes)?;
-            Ok(match v {
-                0 => Offense::Tardy,
-                _ => Offense::Absence,
-            })
+            match v {
+                0 => Ok(Offense::Tardy),
+                1 => Ok(Offense::Absence),
+                x => Err(SlackError::InternalServerError(format!("Unrecognized variant {} while deserializing Offense", x)).to_string().into())
+            }
     }
 }
 
@@ -59,7 +60,7 @@ impl Into<Offense> for i32 {
     fn into(self) -> Offense {
         match self {
             0 => Offense::Tardy,
-            _ => Offense::Absence
+            _ => Offense::Absence // Into doesn't allow errors, but this will never not be `1` because of the `ToSql` impl
         }
     }
 }

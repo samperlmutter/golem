@@ -48,10 +48,11 @@ impl<DB: Backend> FromSql<Integer, DB> for Excusability
     {
         fn from_sql(bytes: Option<&DB::RawValue>) -> deserialize::Result<Self> {
             let v = i32::from_sql(bytes)?;
-            Ok(match v {
-                0 => Excusability::Excused,
-                _ => Excusability::Unexcused,
-            })
+            match v {
+                0 => Ok(Excusability::Excused),
+                1 => Ok(Excusability::Unexcused),
+                x => Err(SlackError::InternalServerError(format!("Unrecognized variant {} while deserializing Excusability", x)).to_string().into())
+            }
     }
 }
 
@@ -59,7 +60,7 @@ impl Into<Excusability> for i32 {
     fn into(self) -> Excusability {
         match self {
             0 => Excusability::Excused,
-            _ => Excusability::Unexcused
+            _ => Excusability::Unexcused // Into doesn't allow errors, but this will never not be `1` because of the `ToSql` impl
         }
     }
 }
