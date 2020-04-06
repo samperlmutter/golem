@@ -12,9 +12,9 @@ pub fn handle_strikes(conn: StrikesDbConn, slack_msg: &SlackSlashCommand, auth_t
     match &slack_msg.command {
         SlashCmd::Strikes(StrikeAction::Add) if slack_msg.brother.can_act => send_add_strike_modal(slack_msg, auth_token),
         SlashCmd::Strikes(StrikeAction::Remove) if slack_msg.brother.can_act => send_remove_strike_modal(slack_msg, auth_token),
-        SlashCmd::Strikes(StrikeAction::List(brother)) => list_brother_strikes(&conn, brother),
-        SlashCmd::Strikes(StrikeAction::Rank) => rank_strikes(&conn),
-        SlashCmd::Strikes(StrikeAction::Reset) if slack_msg.brother.can_reset => reset_strikes(&conn),
+        SlashCmd::Strikes(StrikeAction::List(brother)) => list_brother_strikes(conn, brother),
+        SlashCmd::Strikes(StrikeAction::Rank) => rank_strikes(conn),
+        SlashCmd::Strikes(StrikeAction::Reset) if slack_msg.brother.can_reset => reset_strikes(conn),
         _ => Err(SlackError::Unauthorized)
     }
 }
@@ -33,7 +33,7 @@ fn send_remove_strike_modal<'a>(slack_msg: &SlackSlashCommand, auth_token: State
     Ok(SlackResponse::None)
 }
 
-fn rank_strikes(conn: &StrikesDbConn) -> SlackResult {
+fn rank_strikes(conn: StrikesDbConn) -> SlackResult {
     let mut res = String::new();
 
     for brother in brothers.order(name.asc()).load::<Brother>(&conn.0)? {
@@ -50,7 +50,7 @@ fn rank_strikes(conn: &StrikesDbConn) -> SlackResult {
     Ok(SlackResponse::Text(res))
 }
 
-fn list_brother_strikes(conn: &StrikesDbConn, brother: &Brother) -> SlackResult {
+fn list_brother_strikes(conn: StrikesDbConn, brother: &Brother) -> SlackResult {
     let brother_strikes = Strike::belonging_to(brother).load::<Strike>(&conn.0)?;
 
     if brother_strikes.is_empty() {
@@ -70,7 +70,7 @@ fn list_brother_strikes(conn: &StrikesDbConn, brother: &Brother) -> SlackResult 
     Ok(SlackResponse::Text(res))
 }
 
-fn reset_strikes(conn: &StrikesDbConn) -> SlackResult {
+fn reset_strikes(conn: StrikesDbConn) -> SlackResult {
     diesel::delete(strikes).execute(&conn.0)?;
     Ok(SlackResponse::Text("Strikes have been reset".to_string()))
 }
