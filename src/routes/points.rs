@@ -61,5 +61,6 @@ fn list_brother_points(conn: StrikesDbConn, brother: &Brother) -> SlackResult {
 }
 
 fn reset_points(conn: StrikesDbConn) -> SlackResult {
-    todo!();
+    diesel::delete(points).execute(&conn.0)?;
+    Ok(SlackResponse::Text("Points have been reset".to_string()))
 }
