@@ -5,3 +5,9 @@ CREATE TABLE points (
     brother_id VARCHAR(50) NOT NULL,
     PRIMARY KEY (id)
 );
+
+INSERT INTO points (amount, reason, brother_id) VALUES (20, "doing something sick", "UN4DNTW5S");
+INSERT INTO points (amount, reason, brother_id) VALUES (40, "doing something extra sick", "UN4DNTW5S");
+INSERT INTO points (amount, reason, brother_id) VALUES (-100, "doing something very not sick", "UN4DNTW5S");
+INSERT INTO points (amount, reason, brother_id) VALUES (-100, "doing something very very not sick", "UN4DNTW5U");
+INSERT INTO points (amount, reason, brother_id) VALUES (100, "being himself", "UN4DNTW5T");
