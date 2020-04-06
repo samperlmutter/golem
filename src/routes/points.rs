@@ -28,7 +28,31 @@ fn send_remove_points_modal(slack_msg: &SlackSlashCommand, auth_token: State<Sla
 }
 
 fn rank_points(conn: StrikesDbConn) -> SlackResult {
-    todo!();
+    let mut res = String::new();
+
+    let brothers_t = brothers.load::<Brother>(&conn.0)?;
+    let points_entries = PointsEntry::belonging_to(&brothers_t).load::<PointsEntry>(&conn.0)?.grouped_by(&brothers_t);
+    let mut rankings = brothers_t.iter()
+        .zip(points_entries)
+        .map(|(brother, point_entries): (&Brother, Vec<PointsEntry>)|
+            (brother.name.clone(), point_entries.iter().fold(0, |acc, p| acc + p.amount))
+        )
+        .collect::<Vec<(String, i32)>>();
+    rankings.sort_by_key(|r| r.0.clone());
+    rankings.reverse();
+    rankings.sort_by_key(|r| r.1);
+    rankings.reverse();
+
+    for (i, ranking) in rankings.iter().enumerate() {
+        res += &format!("{}. *{}* has *{} point{}*\n",
+                        i + 1,
+                        ranking.0,
+                        ranking.1,
+                        if ranking.1 == 1 { "" } else { "s" }
+        );
+    }
+
+    Ok(SlackResponse::Text(res))
 }
 
 fn list_brother_points(conn: StrikesDbConn, brother: &Brother) -> SlackResult {
