@@ -4,7 +4,6 @@ table! {
         can_strike -> Bool,
         can_reset -> Bool,
         name -> Varchar,
-        points -> Integer,
     }
 }
 

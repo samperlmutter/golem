@@ -3,10 +3,9 @@ CREATE TABLE brothers (
     can_strike TINYINT(1) NOT NULL,
     can_reset TINYINT(1) NOT NULL,
     `name` VARCHAR(200) NOT NULL,
-    points INT(11) NOT NULL,
     PRIMARY KEY (slack_id)
 );
 
-INSERT INTO brothers (slack_id, can_strike, can_reset, `name`, points) VALUES ("UN4DNTW5S", 1, 1, "Sam", 0);
-INSERT INTO brothers (slack_id, can_strike, can_reset, `name`, points) VALUES ("UN4DNTW5T", 0, 1, "Ethan", 0);
-INSERT INTO brothers (slack_id, can_strike, can_reset, `name`, points) VALUES ("UN4DNTW5U", 0, 0, "Danny", 0);
+INSERT INTO brothers (slack_id, can_strike, can_reset, `name`) VALUES ("UN4DNTW5S", 1, 1, "Sam");
+INSERT INTO brothers (slack_id, can_strike, can_reset, `name`) VALUES ("UN4DNTW5T", 0, 1, "Ethan");
+INSERT INTO brothers (slack_id, can_strike, can_reset, `name`) VALUES ("UN4DNTW5U", 0, 0, "Danny");

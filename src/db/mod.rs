@@ -15,7 +15,6 @@ pub struct Brother {
     pub can_act: bool,
     pub can_reset: bool,
     pub name: String,
-    pub points: i32,
 }
 
 #[derive(Identifiable, Queryable, Associations, PartialEq, Debug)]
