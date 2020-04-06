@@ -64,6 +64,6 @@ pub struct InsertablePointsEntry {
 
 impl Display for PointsEntry {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
-        write!(f, "*{} point{}* for *{}*", self.amount, if self.amount == 1 { "" } else { "s" }, self.reason)
+        write!(f, "*{} point{}* for *{}*", self.amount.abs(), if self.amount == 1 { "" } else { "s" }, self.reason)
     }
 }
