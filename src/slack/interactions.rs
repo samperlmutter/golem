@@ -64,12 +64,10 @@ impl data::FromDataSimple for ViewPayload {
             return Outcome::Failure((Status::InternalServerError, SlackError::InternalServerError(format!("{:?}", e))));
         }
 
-        let body: String;
-
-        match percent_encoding::percent_decode(string.as_bytes()).decode_utf8() {
-            Ok(req) => body = req.replace("+", " ").split("payload=").collect::<String>(),
+        let body = match percent_encoding::percent_decode(string.as_bytes()).decode_utf8() {
+            Ok(req) => req.replace("+", " ").split("payload=").collect::<String>(),
             Err(e) => return Outcome::Failure((Status::InternalServerError, SlackError::InternalServerError(format!("{:?}", e))))
-        }
+        };
 
         let payload: Value = serde_json::from_str(&body).unwrap();
         let interaction_type = match payload["type"].as_str().unwrap().parse::<InteractionType>() {

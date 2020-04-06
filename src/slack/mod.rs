@@ -188,12 +188,10 @@ impl data::FromDataSimple for SlackSlashCommand {
             return Outcome::Failure((Status::InternalServerError, SlackError::InternalServerError(format!("{:?}", e))));
         }
 
-        let body;
-
-        match percent_encoding::percent_decode(string.as_bytes()).decode_utf8() {
-            Ok(req) => body = req.replace("+", " "),
+        let body = match percent_encoding::percent_decode(string.as_bytes()).decode_utf8() {
+            Ok(req) => req.replace("+", " "),
             Err(e) => return Outcome::Failure((Status::InternalServerError, SlackError::InternalServerError(format!("{:?}", e))))
-        }
+        };
 
         let mut fields: HashMap<&str, String> = HashMap::new();
         for f in body.split("&") {
