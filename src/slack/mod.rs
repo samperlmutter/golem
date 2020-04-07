@@ -130,7 +130,7 @@ impl<'r> Responder<'r> for SlackResponse {
     fn respond_to(self, req: &Request) -> response::Result<'r> {
         let mut response = Response::build();
         match self {
-            SlackResponse::Text(text) => {response.merge(Json(SlackResponse::Text(text)).respond_to(req).unwrap());}
+            SlackResponse::Text(text) => { response.merge(Json(SlackResponse::Text(text)).respond_to(req).unwrap()); }
             SlackResponse::None => {},
             SlackResponse::Raw(text) => {
                 response.merge(text.respond_to(req).unwrap());
@@ -149,6 +149,7 @@ pub enum SlackError {
     DatabaseError,
     UserError(String),
     InvalidCmd(String),
+    ModalError(std::collections::HashMap<String, String>),
 }
 
 pub type SlackResult = Result<SlackResponse, SlackError>;
@@ -162,6 +163,7 @@ impl fmt::Display for SlackError {
             SlackError::DatabaseError => write!(f, "Error querying database"),
             SlackError::UserError(msg) => write!(f, "Error: {}", msg),
             SlackError::InvalidCmd(help_text) => write!(f, "{}", help_text),
+            SlackError::ModalError(errs) => write!(f, "Error during modal handling, contact the Slack Master: {:?}", errs),
         }
     }
 }
