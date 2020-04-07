@@ -149,7 +149,6 @@ pub enum SlackError {
     DatabaseError,
     UserError(String),
     InvalidCmd(String),
-    ModalError(std::collections::HashMap<String, String>),
 }
 
 pub type SlackResult = Result<SlackResponse, SlackError>;
@@ -163,7 +162,6 @@ impl fmt::Display for SlackError {
             SlackError::DatabaseError => write!(f, "Error querying database"),
             SlackError::UserError(msg) => write!(f, "Error: {}", msg),
             SlackError::InvalidCmd(help_text) => write!(f, "{}", help_text),
-            SlackError::ModalError(errs) => write!(f, "Error during modal handling, contact the Slack Master: {:?}", errs),
         }
     }
 }
