@@ -21,10 +21,9 @@ pub fn index(conn: StrikesDbConn, slack_req: Result<SlackSlashCommand, SlackErro
 pub fn interaction(conn: StrikesDbConn, view_payload: Result<ViewPayload, SlackError>) -> SlackResponse {
     match view_payload.as_ref().map(|payload| (payload.modal_action, payload)) {
         Ok((ModalAction::AddStrike, payload)) => strikes::receive_add_strike_modal(conn, payload).unwrap_or_else(|e| SlackResponse::Text(e.to_string())),
-        Ok((ModalAction::RemoveStrikeUser, payload)) => strikes::update_remove_strike_modal(conn, payload).unwrap_or_else(|e| SlackResponse::Text(e.to_string())),
-        Ok((ModalAction::RemoveStrikeStrike, payload)) => strikes::receive_remove_strike_modal(conn, payload).unwrap_or_else(|e| SlackResponse::Text(e.to_string())),
-        Ok((ModalAction::AddPoints, payload)) => points::receive_add_points_modal(conn, payload).unwrap_or_else(|e| SlackResponse::Text(e.to_string())),
-        Ok((ModalAction::SubtractPoints, payload)) => points::receive_subtract_points_modal(conn, payload).unwrap_or_else(|e| SlackResponse::Text(e.to_string())),
+        Ok((ModalAction::RemoveStrikeUser, payload)) => strikes::update_remove_strike_modal(conn, payload).unwrap_or_else(|e| SlackResponse::Raw(e.to_string())),
+        Ok((ModalAction::RemoveStrikeStrike, payload)) => strikes::receive_remove_strike_modal(conn, payload).unwrap_or_else(|e| SlackResponse::Raw(e.to_string())),
+        Ok((ModalAction::AddPoints, payload)) | Ok((ModalAction::SubtractPoints, payload)) => points::receive_change_points_modal(conn, payload).unwrap_or_else(|e| SlackResponse::Raw(e.to_string())),
         Err(err) => SlackResponse::Text(err.to_string())
     }
 }

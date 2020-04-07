@@ -4,8 +4,7 @@ use diesel::prelude::*;
 use crate::StrikesDbConn;
 use crate::slack::{ SlackResult, SlackResponse };
 use crate::slack::interactions::ViewPayload;
-use crate::db::{ Strike, InsertableStrike, Excusability, Offense };
-use crate::db::Brother;
+use crate::db::{ Strike, InsertableStrike, Excusability, Offense, Brother };
 use crate::schema::brothers::dsl::*;
 use crate::schema::strikes::dsl::*;
 
