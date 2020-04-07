@@ -1,0 +1,127 @@
+{
+    "type": "modal",
+    "callback_id": "add_strike_modal",
+    "title": {
+        "type": "plain_text",
+        "text": "Add a strike",
+        "emoji": true
+    },
+    "submit": {
+        "type": "plain_text",
+        "text": "Submit",
+        "emoji": true
+    },
+    "close": {
+        "type": "plain_text",
+        "text": "Cancel",
+        "emoji": true
+    },
+    "blocks": [{
+            "type": "input",
+            "block_id": "add_strike_target_block",
+            "element": {
+                "type": "users_select",
+                "placeholder": {
+                    "type": "plain_text",
+                    "text": "Select a brother",
+                    "emoji": true
+                },
+                "action_id": "add_strike_target"
+            },
+            "label": {
+                "type": "plain_text",
+                "text": "Select a brother",
+                "emoji": true
+            }
+        },
+        {
+            "type": "input",
+            "block_id": "add_strike_excusability_block",
+            "element": {
+                "type": "static_select",
+                "placeholder": {
+                    "type": "plain_text",
+                    "text": "Excusability",
+                    "emoji": true
+                },
+                "action_id": "add_strike_excusability",
+                "options": [{
+                        "text": {
+                            "type": "plain_text",
+                            "text": "Excused",
+                            "emoji": true
+                        },
+                        "value": "excused"
+                    },
+                    {
+                        "text": {
+                            "type": "plain_text",
+                            "text": "Unexcused",
+                            "emoji": true
+                        },
+                        "value": "unexcused"
+                    }
+                ]
+            },
+            "label": {
+                "type": "plain_text",
+                "text": "Select their excusability",
+                "emoji": true
+            }
+        },
+        {
+            "type": "input",
+            "block_id": "add_strike_offense_block",
+            "element": {
+                "type": "static_select",
+                "placeholder": {
+                    "type": "plain_text",
+                    "text": "Offense",
+                    "emoji": true
+                },
+                "action_id": "add_strike_offense",
+                "options": [{
+                        "text": {
+                            "type": "plain_text",
+                            "text": "Tardy",
+                            "emoji": true
+                        },
+                        "value": "tardy"
+                    },
+                    {
+                        "text": {
+                            "type": "plain_text",
+                            "text": "Absent",
+                            "emoji": true
+                        },
+                        "value": "absence"
+                    }
+                ]
+            },
+            "label": {
+                "type": "plain_text",
+                "text": "Select their offense",
+                "emoji": true
+            }
+        },
+        {
+            "type": "input",
+            "block_id": "add_strike_reason_block",
+            "element": {
+                "type": "plain_text_input",
+                "multiline": true,
+                "action_id": "add_strike_reason",
+                "placeholder": {
+                    "type": "plain_text",
+                    "text": "Why are they getting a strike?",
+                    "emoji": true
+                }
+            },
+            "label": {
+                "type": "plain_text",
+                "text": "Reason",
+                "emoji": true
+            }
+        }
+    ]
+}

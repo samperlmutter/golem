@@ -2,11 +2,12 @@ use diesel::prelude::*;
 use rocket::State;
 use serde_json::Value;
 
-use super::{ StrikesDbConn, SlackAuthToken };
+use crate::{ StrikesDbConn, SlackAuthToken };
 use crate::db::{ Strike, Brother };
-use crate::slack::{ SlackSlashCommand, SlackError, SlackResult, SlackResponse, StrikeAction, SlashCmd };
+use crate::routes::send_modal;
 use crate::schema::brothers::dsl::*;
 use crate::schema::strikes::dsl::*;
+use crate::slack::{ SlackSlashCommand, SlackError, SlackResult, SlackResponse, StrikeAction, SlashCmd };
 
 pub fn handle_strikes(conn: StrikesDbConn, slack_msg: &SlackSlashCommand, auth_token: State<SlackAuthToken>) -> SlackResult {
     match &slack_msg.command {
@@ -20,15 +21,15 @@ pub fn handle_strikes(conn: StrikesDbConn, slack_msg: &SlackSlashCommand, auth_t
 }
 
 fn send_add_strike_modal<'a>(slack_msg: &SlackSlashCommand, auth_token: State<'a, SlackAuthToken>) -> SlackResult {
-    let modal_json: Value = serde_json::from_str(include_str!("../json/add-strike-modal.json"))?;
-    super::send_modal(modal_json, &slack_msg.trigger_id, auth_token)?;
+    let modal_json: Value = serde_json::from_str(include_str!("../../json/strikes/add-strike-modal.json"))?;
+    send_modal(modal_json, &slack_msg.trigger_id, auth_token)?;
 
     Ok(SlackResponse::None)
 }
 
 fn send_remove_strike_modal<'a>(slack_msg: &SlackSlashCommand, auth_token: State<'a, SlackAuthToken>) -> SlackResult {
-    let modal_json: Value = serde_json::from_str(include_str!("../json/remove-strike-modal-user-submission.json"))?;
-    super::send_modal(modal_json, &slack_msg.trigger_id, auth_token)?;
+    let modal_json: Value = serde_json::from_str(include_str!("../../json/strikes/remove-strike-modal-user-submission.json"))?;
+    send_modal(modal_json, &slack_msg.trigger_id, auth_token)?;
 
     Ok(SlackResponse::None)
 }

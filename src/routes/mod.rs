@@ -1,6 +1,5 @@
-pub mod strikes;
-pub mod points;
-pub mod interactions;
+mod points;
+mod strikes;
 
 use rocket::State;
 use serde_json::Value;
@@ -21,9 +20,9 @@ pub fn index(conn: StrikesDbConn, slack_req: Result<SlackSlashCommand, SlackErro
 #[post("/interaction", format = "application/x-www-form-urlencoded", data = "<view_payload>")]
 pub fn interaction(conn: StrikesDbConn, view_payload: Result<ViewPayload, SlackError>) -> SlackResponse {
     match view_payload.as_ref().map(|payload| (payload.modal_action, payload)) {
-        Ok((ModalAction::AddStrike, payload)) => interactions::receive_add_strike_modal(conn, payload).unwrap_or_else(|e| SlackResponse::Text(e.to_string())),
-        Ok((ModalAction::RemoveStrikeUser, payload)) => interactions::update_remove_strike_modal(conn, payload).unwrap_or_else(|e| SlackResponse::Text(e.to_string())),
-        Ok((ModalAction::RemoveStrikeStrike, payload)) => interactions::receive_remove_strike_modal(conn, payload).unwrap_or_else(|e| SlackResponse::Text(e.to_string())),
+        Ok((ModalAction::AddStrike, payload)) => strikes::receive_add_strike_modal(conn, payload).unwrap_or_else(|e| SlackResponse::Text(e.to_string())),
+        Ok((ModalAction::RemoveStrikeUser, payload)) => strikes::update_remove_strike_modal(conn, payload).unwrap_or_else(|e| SlackResponse::Text(e.to_string())),
+        Ok((ModalAction::RemoveStrikeStrike, payload)) => strikes::receive_remove_strike_modal(conn, payload).unwrap_or_else(|e| SlackResponse::Text(e.to_string())),
         Err(err) => SlackResponse::Text(err.to_string())
     }
 }
