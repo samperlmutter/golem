@@ -1,0 +1,69 @@
+{
+    "type": "modal",
+    "submit": {
+        "type": "plain_text",
+        "text": "Submit",
+        "emoji": true
+    },
+    "close": {
+        "type": "plain_text",
+        "text": "Cancel",
+        "emoji": true
+    },
+    "blocks": [{
+            "type": "input",
+            "block_id": "change_points_target_block",
+            "element": {
+                "type": "users_select",
+                "placeholder": {
+                    "type": "plain_text",
+                    "text": "Select a brother",
+                    "emoji": true
+                },
+                "action_id": "change_points_target"
+            },
+            "label": {
+                "type": "plain_text",
+                "text": "Select a brother",
+                "emoji": true
+            }
+        },
+        {
+            "type": "input",
+            "block_id": "change_points_amount_block",
+            "element": {
+                "type": "plain_text_input",
+                "action_id": "change_points_amount",
+                "placeholder": {
+                    "type": "plain_text",
+                    "text": "How many points?",
+                    "emoji": false
+                }
+            },
+            "label": {
+                "type": "plain_text",
+                "text": "Amount",
+                "emoji": true
+            }
+        },
+        {
+            "type": "input",
+            "block_id": "change_points_reason_block",
+            "element": {
+                "type": "plain_text_input",
+                "multiline": true,
+                "action_id": "change_points_reason",
+                "placeholder": {
+                    "type": "plain_text",
+                    "text": "Why do they deserve this?",
+                    "emoji": true
+                }
+            },
+            "label": {
+                "type": "plain_text",
+                "text": "Reason",
+                "emoji": true
+            }
+        }
+    ]
+}

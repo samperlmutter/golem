@@ -21,11 +21,29 @@ pub fn handle_points(conn: StrikesDbConn, slack_msg: &SlackSlashCommand, auth_to
 }
 
 fn send_add_points_modal(slack_msg: &SlackSlashCommand, auth_token: State<SlackAuthToken>) -> SlackResult {
-    todo!();
+    let mut modal_json: Value = serde_json::from_str(include_str!("../../json/points/change-points-modal.json"))?;
+    modal_json.as_object_mut().unwrap().insert("callback_id".to_string(), json!("add_points_modal"));
+    modal_json.as_object_mut().unwrap().insert("title".to_string(), json!({
+        "type": "plain_text",
+        "text": "Add points"
+    }));
+
+    send_modal(modal_json, &slack_msg.trigger_id, auth_token)?;
+
+    Ok(SlackResponse::None)
 }
 
 fn send_remove_points_modal(slack_msg: &SlackSlashCommand, auth_token: State<SlackAuthToken>) -> SlackResult {
-    todo!();
+    let mut modal_json: Value = serde_json::from_str(include_str!("../../json/points/change-points-modal.json"))?;
+    modal_json.as_object_mut().unwrap().insert("callback_id".to_string(), json!("remove_points_modal"));
+    modal_json.as_object_mut().unwrap().insert("title".to_string(), json!({
+        "type": "plain_text",
+        "text": "Remove points"
+    }));
+
+    send_modal(modal_json, &slack_msg.trigger_id, auth_token)?;
+
+    Ok(SlackResponse::None)
 }
 
 fn rank_points(conn: StrikesDbConn) -> SlackResult {

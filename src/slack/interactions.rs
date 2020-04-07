@@ -33,6 +33,8 @@ pub enum ModalAction {
     AddStrike,
     RemoveStrikeUser,
     RemoveStrikeStrike,
+    AddPoints,
+    RemovePoints,
 }
 
 impl std::str::FromStr for ModalAction {
@@ -43,6 +45,8 @@ impl std::str::FromStr for ModalAction {
             "add_strike_modal" => Ok(ModalAction::AddStrike),
             "remove_strike_modal_user_submission" => Ok(ModalAction::RemoveStrikeUser),
             "remove_strike_modal_strike_submission" => Ok(ModalAction::RemoveStrikeStrike),
+            "add_points_modal" => Ok(ModalAction::AddPoints),
+            "remove_points_modal" => Ok(ModalAction::RemovePoints),
             _ => Err(SlackError::InvalidCmd("Error parsing modal_id".to_string()))
         }
     }
