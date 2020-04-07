@@ -1,12 +1,13 @@
-pub mod excusability;
-pub mod offense;
+pub use excusability::Excusability;
+pub use offense::Offense;
+
+mod excusability;
+mod offense;
 
 use std::fmt::*;
 use serde::Deserialize;
 
 use crate::schema::{ brothers, strikes, points };
-use excusability::Excusability;
-use offense::Offense;
 
 #[derive(Identifiable, Queryable, Debug, Deserialize, PartialEq, Clone)]
 #[primary_key(slack_id)]
