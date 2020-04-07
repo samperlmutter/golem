@@ -12,7 +12,7 @@ use crate::schema::points::dsl::*;
 pub fn handle_points(conn: StrikesDbConn, slack_msg: &SlackSlashCommand, auth_token: State<SlackAuthToken>) -> SlackResult {
     match &slack_msg.command {
         SlashCmd::Points(PointAction::Add) if slack_msg.brother.can_act => send_add_points_modal(slack_msg, auth_token),
-        SlashCmd::Points(PointAction::Remove) if slack_msg.brother.can_act => send_remove_points_modal(slack_msg, auth_token),
+        SlashCmd::Points(PointAction::Remove) if slack_msg.brother.can_act => send_subtract_points_modal(slack_msg, auth_token),
         SlashCmd::Points(PointAction::List(brother)) => list_brother_points(conn, brother),
         SlashCmd::Points(PointAction::Rank) => rank_points(conn),
         SlashCmd::Points(PointAction::Reset) if slack_msg.brother.can_reset => reset_points(conn),
@@ -33,12 +33,12 @@ fn send_add_points_modal(slack_msg: &SlackSlashCommand, auth_token: State<SlackA
     Ok(SlackResponse::None)
 }
 
-fn send_remove_points_modal(slack_msg: &SlackSlashCommand, auth_token: State<SlackAuthToken>) -> SlackResult {
+fn send_subtract_points_modal(slack_msg: &SlackSlashCommand, auth_token: State<SlackAuthToken>) -> SlackResult {
     let mut modal_json: Value = serde_json::from_str(include_str!("../../json/points/change-points-modal.json"))?;
-    modal_json.as_object_mut().unwrap().insert("callback_id".to_string(), json!("remove_points_modal"));
+    modal_json.as_object_mut().unwrap().insert("callback_id".to_string(), json!("subtract_points_modal"));
     modal_json.as_object_mut().unwrap().insert("title".to_string(), json!({
         "type": "plain_text",
-        "text": "Remove points"
+        "text": "Subtract points"
     }));
 
     send_modal(modal_json, &slack_msg.trigger_id, auth_token)?;

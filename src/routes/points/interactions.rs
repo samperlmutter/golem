@@ -13,6 +13,6 @@ pub fn receive_add_points_modal<'a>(conn: StrikesDbConn, view_payload: &ViewPayl
     todo!();
 }
 
-pub fn receive_remove_points_modal<'a>(conn: StrikesDbConn, view_payload: &ViewPayload) -> SlackResult {
+pub fn receive_subtract_points_modal<'a>(conn: StrikesDbConn, view_payload: &ViewPayload) -> SlackResult {
     todo!();
 }
