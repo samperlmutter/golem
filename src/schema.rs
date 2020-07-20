@@ -17,6 +17,13 @@ table! {
 }
 
 table! {
+    point_presets (title) {
+        title -> Varchar,
+        point_quantity -> Integer,
+    }
+}
+
+table! {
     strikes (id) {
         id -> Integer,
         excusability -> Integer,
@@ -29,5 +36,6 @@ table! {
 allow_tables_to_appear_in_same_query!(
     brothers,
     points,
+    point_presets,
     strikes,
 );

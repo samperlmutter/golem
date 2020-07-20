@@ -7,7 +7,7 @@ mod offense;
 use std::fmt::*;
 use serde::Deserialize;
 
-use crate::schema::{ brothers, strikes, points };
+use crate::schema::*;
 
 #[derive(Identifiable, Queryable, Debug, Deserialize, PartialEq, Clone)]
 #[primary_key(slack_id)]
@@ -67,4 +67,11 @@ impl Display for PointsEntry {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         write!(f, "*{} point{}* for *{}*", self.amount.abs(), if self.amount == 1 { "" } else { "s" }, self.reason)
     }
+}
+
+#[derive(Identifiable, Queryable)]
+#[primary_key(title)]
+pub struct PointPreset {
+    pub title: String,
+    pub point_quantity: i32,
 }
