@@ -2,13 +2,11 @@
     "type": "modal",
     "submit": {
         "type": "plain_text",
-        "text": "Submit",
-        "emoji": true
+        "text": "Submit"
     },
     "close": {
         "type": "plain_text",
-        "text": "Cancel",
-        "emoji": true
+        "text": "Cancel"
     },
     "blocks": [{
             "type": "input",
@@ -17,15 +15,13 @@
                 "type": "users_select",
                 "placeholder": {
                     "type": "plain_text",
-                    "text": "Select a brother",
-                    "emoji": true
+                    "text": "Select a brother"
                 },
                 "action_id": "change_points_target"
             },
             "label": {
                 "type": "plain_text",
-                "text": "Select a brother",
-                "emoji": true
+                "text": "Select a brother"
             }
         },
         {
@@ -42,8 +38,7 @@
             },
             "label": {
                 "type": "plain_text",
-                "text": "Amount",
-                "emoji": true
+                "text": "Amount"
             }
         },
         {
@@ -55,14 +50,12 @@
                 "action_id": "change_points_reason",
                 "placeholder": {
                     "type": "plain_text",
-                    "text": "Why do they deserve this?",
-                    "emoji": true
+                    "text": "Why do they deserve this?"
                 }
             },
             "label": {
                 "type": "plain_text",
-                "text": "Reason",
-                "emoji": true
+                "text": "Reason"
             }
         }
     ]

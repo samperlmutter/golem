@@ -3,18 +3,15 @@
     "callback_id": "remove_strike_modal_user_submission",
     "title": {
         "type": "plain_text",
-        "text": "Remove a strike",
-        "emoji": true
+        "text": "Remove a strike"
     },
     "submit": {
         "type": "plain_text",
-        "text": "Next",
-        "emoji": true
+        "text": "Next"
     },
     "close": {
         "type": "plain_text",
-        "text": "Cancel",
-        "emoji": true
+        "text": "Cancel"
     },
     "blocks": [{
         "type": "input",
@@ -23,15 +20,13 @@
             "type": "users_select",
             "placeholder": {
                 "type": "plain_text",
-                "text": "Select a brother",
-                "emoji": true
+                "text": "Select a brother"
             },
             "action_id": "remove_strike_target"
         },
         "label": {
             "type": "plain_text",
-            "text": "Select a brother",
-            "emoji": true
+            "text": "Select a brother"
         }
     }]
 }

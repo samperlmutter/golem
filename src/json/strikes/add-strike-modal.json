@@ -3,18 +3,15 @@
     "callback_id": "add_strike_modal",
     "title": {
         "type": "plain_text",
-        "text": "Add a strike",
-        "emoji": true
+        "text": "Add a strike"
     },
     "submit": {
         "type": "plain_text",
-        "text": "Submit",
-        "emoji": true
+        "text": "Submit"
     },
     "close": {
         "type": "plain_text",
-        "text": "Cancel",
-        "emoji": true
+        "text": "Cancel"
     },
     "blocks": [{
             "type": "input",
@@ -23,15 +20,13 @@
                 "type": "users_select",
                 "placeholder": {
                     "type": "plain_text",
-                    "text": "Select a brother",
-                    "emoji": true
+                    "text": "Select a brother"
                 },
                 "action_id": "add_strike_target"
             },
             "label": {
                 "type": "plain_text",
-                "text": "Select a brother",
-                "emoji": true
+                "text": "Select a brother"
             }
         },
         {
@@ -41,23 +36,20 @@
                 "type": "static_select",
                 "placeholder": {
                     "type": "plain_text",
-                    "text": "Excusability",
-                    "emoji": true
+                    "text": "Excusability"
                 },
                 "action_id": "add_strike_excusability",
                 "options": [{
                         "text": {
                             "type": "plain_text",
-                            "text": "Excused",
-                            "emoji": true
+                            "text": "Excused"
                         },
                         "value": "excused"
                     },
                     {
                         "text": {
                             "type": "plain_text",
-                            "text": "Unexcused",
-                            "emoji": true
+                            "text": "Unexcused"
                         },
                         "value": "unexcused"
                     }
@@ -65,8 +57,7 @@
             },
             "label": {
                 "type": "plain_text",
-                "text": "Select their excusability",
-                "emoji": true
+                "text": "Select their excusability"
             }
         },
         {
@@ -76,23 +67,20 @@
                 "type": "static_select",
                 "placeholder": {
                     "type": "plain_text",
-                    "text": "Offense",
-                    "emoji": true
+                    "text": "Offense"
                 },
                 "action_id": "add_strike_offense",
                 "options": [{
                         "text": {
                             "type": "plain_text",
-                            "text": "Tardy",
-                            "emoji": true
+                            "text": "Tardy"
                         },
                         "value": "tardy"
                     },
                     {
                         "text": {
                             "type": "plain_text",
-                            "text": "Absent",
-                            "emoji": true
+                            "text": "Absent"
                         },
                         "value": "absence"
                     }
@@ -100,8 +88,7 @@
             },
             "label": {
                 "type": "plain_text",
-                "text": "Select their offense",
-                "emoji": true
+                "text": "Select their offense"
             }
         },
         {
@@ -113,14 +100,12 @@
                 "action_id": "add_strike_reason",
                 "placeholder": {
                     "type": "plain_text",
-                    "text": "Why are they getting a strike?",
-                    "emoji": true
+                    "text": "Why are they getting a strike?"
                 }
             },
             "label": {
                 "type": "plain_text",
-                "text": "Reason",
-                "emoji": true
+                "text": "Reason"
             }
         }
     ]
