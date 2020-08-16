@@ -10,14 +10,15 @@ table! {
 table! {
     points (id) {
         id -> Integer,
-        amount -> Integer,
-        reason -> Varchar,
+        reason_id -> Integer,
         brother_id -> Varchar,
+        timestamp -> Timestamp,
     }
 }
 
 table! {
-    point_presets (title) {
+    point_presets (preset_id) {
+        preset_id -> Integer,
         title -> Varchar,
         point_quantity -> Integer,
     }

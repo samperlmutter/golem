@@ -1,0 +1,48 @@
+{
+    "type": "modal",
+    "callback_id": "add-points-modal",
+    "title": {
+        "type": "plain_text",
+        "text": "Add points"
+    },
+    "submit": {
+        "type": "plain_text",
+        "text": "Submit"
+    },
+    "close": {
+        "type": "plain_text",
+        "text": "Cancel"
+    },
+    "blocks": [{
+            "type": "input",
+            "block_id": "add_points_brothers_block",
+            "element": {
+                "type": "multi_users_select",
+                "placeholder": {
+                    "type": "plain_text",
+                    "text": "Select brothers"
+                }
+            },
+            "label": {
+                "type": "plain_text",
+                "text": "Select brothers"
+            }
+        },
+        {
+            "type": "input",
+            "block_id": "add_points_reason_block",
+            "element": {
+                "type": "static_select",
+                "placeholder": {
+                    "type": "plain_text",
+                    "text": "Select a reason"
+                },
+                "options": []
+            },
+            "label": {
+                "type": "plain_text",
+                "text": "Select a reason"
+            }
+        }
+    ]
+}

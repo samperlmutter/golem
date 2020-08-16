@@ -68,7 +68,6 @@ impl StrikeAction {
 #[derive(Clone)]
 pub enum PointAction {
     Add,
-    Remove,
     List(Brother),
     Rank,
     Reset,
@@ -95,7 +94,6 @@ impl PointAction {
         if params.len() > 0 {
             match params[0] {
                 "add" => Ok(PointAction::Add),
-                "remove" => Ok(PointAction::Remove),
                 "list" if params.len() == 2 => {
                     let bro_id = parse_slack_id(&params[1])?;
                     let brother = brothers.filter(slack_id.eq(bro_id)).first::<Brother>(&conn.0)?;

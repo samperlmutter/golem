@@ -6,6 +6,7 @@ mod offense;
 
 use std::fmt::*;
 use serde::Deserialize;
+use chrono::naive::NaiveDateTime;
 
 use crate::schema::*;
 
@@ -50,28 +51,22 @@ impl Display for Strike {
 #[table_name = "points"]
 pub struct PointsEntry {
     pub id: i32,
-    pub amount: i32,
-    pub reason: String,
+    pub reason_id: i32,
     pub brother_id: String,
+    pub timestamp: NaiveDateTime,
 }
 
 #[derive(Insertable, PartialEq)]
 #[table_name = "points"]
 pub struct InsertablePointsEntry {
-    pub amount: i32,
-    pub reason: String,
+    pub reason_id: i32,
     pub brother_id: String,
 }
 
-impl Display for PointsEntry {
-    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
-        write!(f, "*{} point{}* for *{}*", self.amount.abs(), if self.amount == 1 { "" } else { "s" }, self.reason)
-    }
-}
-
 #[derive(Identifiable, Queryable)]
-#[primary_key(title)]
+#[primary_key(preset_id)]
 pub struct PointPreset {
+    pub preset_id: i32,
     pub title: String,
     pub point_quantity: i32,
 }
