@@ -1,6 +1,6 @@
 {
     "type": "modal",
-    "callback_id": "add-points-modal",
+    "callback_id": "add_points_modal",
     "title": {
         "type": "plain_text",
         "text": "Add points"
@@ -17,6 +17,7 @@
             "type": "input",
             "block_id": "add_points_brothers_block",
             "element": {
+                "action_id": "add_points_brothers_action",
                 "type": "multi_users_select",
                 "placeholder": {
                     "type": "plain_text",
@@ -32,6 +33,7 @@
             "type": "input",
             "block_id": "add_points_reason_block",
             "element": {
+                "action_id": "add_points_reason_action",
                 "type": "static_select",
                 "placeholder": {
                     "type": "plain_text",
