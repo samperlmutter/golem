@@ -30,7 +30,7 @@ fn send_add_points_modal(conn: StrikesDbConn, slack_msg: &SlackSlashCommand, aut
                                                     "type": "plain_text",
                                                     "text": format!("{} (+{})", p.title, p.point_quantity)
                                                 },
-                                                "value": p.preset_id
+                                                "value": format!("{}", p.preset_id)
                                                 })
                                             })
                                             .collect::<serde_json::Value>();
