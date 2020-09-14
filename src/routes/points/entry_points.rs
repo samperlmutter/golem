@@ -89,7 +89,7 @@ fn list_brother_points(conn: StrikesDbConn, brother: &Brother) -> SlackResult {
                         point_preset.point_quantity,
                         if point_preset.point_quantity == 1 { "" } else { "s" },
                         point_preset.title,
-                        point_entry.timestamp
+                        point_entry.timestamp.format("%b %-d, %Y").to_string()
         );
         total += point_preset.point_quantity;
     }
