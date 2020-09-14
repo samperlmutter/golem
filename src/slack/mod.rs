@@ -79,8 +79,6 @@ impl PointAction {
 "*Available commands*:
 >*Add points*
 >Type `/golem points add` to award points to a brother
->*Remove points*
->Type `/golem points remove` to take points from a brother
 >*List everyone's points*
 >Type `/golem points list [@{name}]` to list how many points each brother has, sorted by number of points
 >Optionally mention a brother to list information about their points
