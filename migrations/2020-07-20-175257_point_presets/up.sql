@@ -5,5 +5,13 @@ CREATE TABLE point_presets (
     PRIMARY KEY (preset_id)
 );
 
-INSERT INTO point_presets (title, point_quantity) VALUES ("attended chapter", 11);
-INSERT INTO point_presets (title, point_quantity) VALUES ("attended brotherhood event", 50);
+INSERT INTO point_presets (title, point_quantity) VALUES ("Philanthropy", 100);
+INSERT INTO point_presets (title, point_quantity) VALUES ("Rush", 80);
+INSERT INTO point_presets (title, point_quantity) VALUES ("Fundraising", 70);
+INSERT INTO point_presets (title, point_quantity) VALUES ("Brotherhood/Alumni event", 50);
+INSERT INTO point_presets (title, point_quantity) VALUES ("New Member Education (for PNMs)", 50);
+INSERT INTO point_presets (title, point_quantity) VALUES ("New Member Education (for Brothers)", 45);
+INSERT INTO point_presets (title, point_quantity) VALUES ("Jewish/Hillel (sponsored)", 30);
+INSERT INTO point_presets (title, point_quantity) VALUES ("Social", 30);
+INSERT INTO point_presets (title, point_quantity) VALUES ("Chapter", 11);
+
